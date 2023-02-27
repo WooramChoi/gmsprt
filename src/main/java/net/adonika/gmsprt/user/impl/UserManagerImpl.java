@@ -1,15 +1,19 @@
 package net.adonika.gmsprt.user.impl;
 
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.user.UserManager;
-import net.adonika.gmsprt.user.dao.UserDao;
+import java.util.List;
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
-import java.util.List;
+import net.adonika.gmsprt.domain.UserInfo;
+import net.adonika.gmsprt.exception.ErrorResp;
+import net.adonika.gmsprt.exception.FieldError;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.dao.UserDao;
 
 @Service("userManager")
 public class UserManagerImpl implements UserManager {
@@ -17,19 +21,25 @@ public class UserManagerImpl implements UserManager {
     private final Logger logger = LoggerFactory.getLogger(UserManagerImpl.class);
 
     private final UserDao userDao;
+    private final MessageSource messageSource;
 
-    public UserManagerImpl(UserDao userDao) {
+    public UserManagerImpl(UserDao userDao, MessageSource messageSource) {
         this.userDao = userDao;
+        this.messageSource = messageSource;
     }
 
     @Override
-    public UserInfo create(String name, String email, String urlPicture) {
-
-        UserInfo userInfo = new UserInfo();
-        userInfo.setName(name);
-        userInfo.setEmail(email);
-        userInfo.setUrlPicture(urlPicture);
-
+    public UserInfo create(UserInfo userInfo) {
+    	
+    	if(userInfo.getSeqUser() != null && userInfo.getSeqUser() > 0) {
+    		throw ErrorResp.getConflict(
+    				new FieldError(
+    						"seqUser", userInfo.getSeqUser(),
+    						messageSource.getMessage("is_null", new String[]{"userInfo.seqUser"}, Locale.getDefault())
+    						)
+    				);
+    	}
+    	
         return userDao.save(userInfo);
     }
 
@@ -41,12 +51,14 @@ public class UserManagerImpl implements UserManager {
     @Override
     public UserInfo update(UserInfo userInfo, List<String> ignores) {
 
-        // TODO MessageSource
-        Assert.notNull(userInfo, "userInfo must be not null");
-        Assert.notNull(userInfo.getSeqUser(), "userInfo.seqUser must be not null");
-
-        // TODO MessageSource
-        UserInfo savedUser = userDao.findById(userInfo.getSeqUser()).orElseThrow(() -> new NullPointerException("user not found"));
+        UserInfo savedUser = userDao.findById(userInfo.getSeqUser()).orElseThrow(
+        		() -> ErrorResp.getNotFound(
+						new FieldError(
+								"seqUser", userInfo.getSeqUser(),
+								messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+								)
+						)
+        		);
 
         logger.debug("before userInfo: {}", savedUser.toString());
         BeanUtils.copyProperties(userInfo, savedUser, ignores.toArray(new String[0]));

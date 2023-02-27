@@ -34,7 +34,6 @@ public class HomeController {
 
         OAuth2AuthorizedClient authorizedClient = clientService.loadAuthorizedClient(provider, name);
 
-
-        return new ResponseEntity<>(authorizedClient, HttpStatus.OK);
+        return ResponseEntity.ok(authorizedClient);
     }
 }

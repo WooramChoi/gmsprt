@@ -9,8 +9,6 @@ public interface BoardManager {
 
     Page<BoardInfo> list(BoardForm boardForm, Pageable pageable);
 
-    BoardInfo create(String subject, String content, Long seqUser);
-
-    BoardInfo create(String subject, String content, String name, String pwd);
+    BoardInfo create(BoardInfo boardInfo, Long seqUser);
 
 }

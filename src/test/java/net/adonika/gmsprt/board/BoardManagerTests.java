@@ -1,10 +1,7 @@
 package net.adonika.gmsprt.board;
 
-import net.adonika.gmsprt.board.model.BoardForm;
-import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.domain.BoardInfo;
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.user.UserManager;
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -14,8 +11,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
-import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.domain.BoardInfo;
+import net.adonika.gmsprt.domain.UserInfo;
+import net.adonika.gmsprt.exception.ErrorResp;
+import net.adonika.gmsprt.user.UserManager;
 
 @SpringBootTest
 public class BoardManagerTests {
@@ -27,28 +32,69 @@ public class BoardManagerTests {
 
     @Autowired
     private UserManager userManager;
+    
+    private BoardInfo getBoardInfo(String title, String content, String name, String pwd) {
+    	BoardInfo boardInfo = new BoardInfo();
+        boardInfo.setTitle(title);
+        boardInfo.setContent(content);
+        boardInfo.setName(name);
+        boardInfo.setPwd(pwd);
+        return boardInfo;
+    }
+    
+    private UserInfo getUserInfo(String name, String email, String urlPicture) {
+    	UserInfo userInfo = new UserInfo();
+    	userInfo.setName(name);
+    	userInfo.setEmail(email);
+    	userInfo.setUrlPicture(urlPicture);
+    	return userInfo;
+    }
+    
+    @Test
+    void insertDuplicate() {
+    	BoardInfo savedBoard01 = boardManager.create(getBoardInfo("tTitle", "tContent", "tName", "1234"), null);
+    	logger.info("Save Board: {}", savedBoard01.getSeqBoard());
+    	
+    	BoardInfo boardInfo = getBoardInfo("tTitle2", "tContent2", "tName2", "1234");
+    	boardInfo.setSeqBoard(savedBoard01.getSeqBoard());
+    	try {
+    		BoardInfo savedBoard02 = boardManager.create(boardInfo, null);
+    		logger.error("Should Not Save!");
+    	}catch(ErrorResp e) {
+    		logger.info("Done", e);
+    		Map<String, Object> data = e.toData();
+    		
+    		ObjectMapper om = new ObjectMapper();
+    		try {
+				String jsonData = om.writeValueAsString(data);
+				logger.info(jsonData);
+			} catch (JsonProcessingException e1) {
+				e1.printStackTrace();
+			}
+    	}
+    }
 
-    //@Test
+    @Test
     void insertAndSearch() {
 
-        UserInfo savedUser = userManager.create("ㄷㄷ", "dnfka4042@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w");
-
-        BoardInfo savedBoard01 = boardManager.create("test1", "ㅇㅇ_1", "ㅇㅇ1", "1234");
+        UserInfo savedUser = userManager.create(getUserInfo("ㄷㄷ", "dnfka4042@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w"));
+        
+        BoardInfo savedBoard01 = boardManager.create(getBoardInfo("test1", "ㅇㅇ_1", "ㅇㅇ1", "1234"), null);
         Assertions.assertNotNull(savedBoard01.getSeqBoard());
         logger.info("Save Board: {}", savedBoard01.getSeqBoard());
 
-        boardManager.create("test2", "ㅇㅇ_2", "ㅇㅇ2", "1234");
-        boardManager.create("test3", "ㅇㅇ_3", "ㅇㅇ3", "1234");
-        boardManager.create("test4", "ㅇㅇ_4", "ㅇㅇ4", "1234");
-        boardManager.create("test5", "ㅇㅇ_5", "ㅇㅇ5", "1234");
-        boardManager.create("test6", "ㄴㄴ_1", "ㄴㄴ1", "1234");
-        boardManager.create("test7", "ㄴㄴ_2", "ㄴㄴ2", "1234");
-        boardManager.create("test8", "ㄴㄴ_3", "ㄴㄴ3", "1234");
-        boardManager.create("test9", "ㄴㄴ_4", "ㄴㄴ4", "1234");
-        boardManager.create("test10", "ㄴㄴ_5", "ㄴㄴ5", "1234");
-        boardManager.create("test11", "ㄷㄷ_1", "ㄷㄷ1", "1234");
-        boardManager.create("test12", "ㄷㄷ_2", "ㄷㄷ2", "1234");
-        boardManager.create("test13", "ㄷㄷ_3", savedUser.getSeqUser());
+        boardManager.create(getBoardInfo("test2", "ㅇㅇ_2", "ㅇㅇ2", "1234"), null);
+        boardManager.create(getBoardInfo("test3", "ㅇㅇ_3", "ㅇㅇ3", "1234"), null);
+        boardManager.create(getBoardInfo("test4", "ㅇㅇ_4", "ㅇㅇ4", "1234"), null);
+        boardManager.create(getBoardInfo("test5", "ㅇㅇ_5", "ㅇㅇ5", "1234"), null);
+        boardManager.create(getBoardInfo("test6", "ㄴㄴ_1", "ㄴㄴ1", "1234"), null);
+        boardManager.create(getBoardInfo("test7", "ㄴㄴ_2", "ㄴㄴ2", "1234"), null);
+        boardManager.create(getBoardInfo("test8", "ㄴㄴ_3", "ㄴㄴ3", "1234"), null);
+        boardManager.create(getBoardInfo("test9", "ㄴㄴ_4", "ㄴㄴ4", "1234"), null);
+        boardManager.create(getBoardInfo("test10", "ㄴㄴ_5", "ㄴㄴ5", "1234"), null);
+        boardManager.create(getBoardInfo("test11", "ㄷㄷ_1", "ㄷㄷ1", "1234"), null);
+        boardManager.create(getBoardInfo("test12", "ㄷㄷ_2", "ㄷㄷ2", "1234"), null);
+        boardManager.create(getBoardInfo("test13", "ㄷㄷ_3", null, null), savedUser.getSeqUser());
 
         BoardForm boardForm = new BoardForm();
         Pageable pageable = PageRequest.of(0, 10);
@@ -96,23 +142,21 @@ public class BoardManagerTests {
     //@Transactional
     void fetchTest() {
 
-        UserInfo savedUser01 = userManager.create("aaa", "aaa@gmail.com", "https://");
+        UserInfo savedUser01 = userManager.create(getUserInfo("aaa", "aaa@gmail.com", "https://"));
+        UserInfo savedUser02 = userManager.create(getUserInfo("bbb", "bbb@gmail.com", "https://"));
+        UserInfo savedUser03 = userManager.create(getUserInfo("ccc", "ccc@gmail.com", "https://"));
 
-        UserInfo savedUser02 = userManager.create("bbb", "bbb@gmail.com", "https://");
+        boardManager.create(getBoardInfo("test1", "aaa01", null, null), savedUser01.getSeqUser());
+        boardManager.create(getBoardInfo("test2", "aaa02", null, null), savedUser01.getSeqUser());
+        boardManager.create(getBoardInfo("test3", "aaa03", null, null), savedUser01.getSeqUser());
 
-        UserInfo savedUser03 = userManager.create("ccc", "ccc@gmail.com", "https://");
+        boardManager.create(getBoardInfo("test4", "bbb01", null, null), savedUser02.getSeqUser());
+        boardManager.create(getBoardInfo("test5", "bbb02", null, null), savedUser02.getSeqUser());
+        boardManager.create(getBoardInfo("test6", "bbb03", null, null), savedUser02.getSeqUser());
 
-        boardManager.create("test1", "aaa01", savedUser01.getSeqUser());
-        boardManager.create("test2", "aaa02", savedUser01.getSeqUser());
-        boardManager.create("test3", "aaa03", savedUser01.getSeqUser());
-
-        boardManager.create("test4", "bbb01", savedUser02.getSeqUser());
-        boardManager.create("test5", "bbb02", savedUser02.getSeqUser());
-        boardManager.create("test6", "bbb03", savedUser02.getSeqUser());
-
-        boardManager.create("test7", "ccc01", savedUser03.getSeqUser());
-        boardManager.create("test8", "ccc02", savedUser03.getSeqUser());
-        boardManager.create("test9", "ccc03", savedUser03.getSeqUser());
+        boardManager.create(getBoardInfo("test7", "ccc01", null, null), savedUser03.getSeqUser());
+        boardManager.create(getBoardInfo("test8", "ccc02", null, null), savedUser03.getSeqUser());
+        boardManager.create(getBoardInfo("test9", "ccc03", null, null), savedUser03.getSeqUser());
 
         BoardForm boardForm = new BoardForm();
         Pageable pageable = PageRequest.of(0, 10);

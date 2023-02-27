@@ -113,19 +113,27 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         UserInfo savedUser = null;
         if (seqUser == null) {
             logger.info("신규 유저 정보 생성");
-            savedUser = userManager.create(oAuth2UserInfo.getName(), oAuth2UserInfo.getEmail(), oAuth2UserInfo.getUrlPicture());
+            UserInfo userInfo = new UserInfo();
+            userInfo.setName(oAuth2UserInfo.getName());
+            userInfo.setEmail(oAuth2UserInfo.getEmail());
+            userInfo.setUrlPicture(oAuth2UserInfo.getUrlPicture());
+            savedUser = userManager.create(userInfo);
             logger.info("신규 유저 정보 생성 완료: [{}] {}", savedUser.getSeqUser(), savedUser.getName());
         } else {
             logger.info("기존 유저 정보 조회");
             savedUser = userManager.getUserInfo(seqUser);
             logger.info("기존 유저 정보 조회 완료: [{}] {}", savedUser.getSeqUser(), savedUser.getName());
         }
-
-        return userProfileManager.create(
-                provider, oAuth2UserInfo.getSid(), oAuth2UserInfo.getUid(),
-                oAuth2UserInfo.getName(), oAuth2UserInfo.getEmail(), oAuth2UserInfo.getUrlPicture(),
-                savedUser.getSeqUser()
-        );
+        
+        UserProfileInfo userProfileInfo = new UserProfileInfo();
+        userProfileInfo.setProvider(provider);
+        userProfileInfo.setSid(oAuth2UserInfo.getSid());
+        userProfileInfo.setUid(oAuth2UserInfo.getUid());
+        
+        userProfileInfo.setName(oAuth2UserInfo.getName());
+        userProfileInfo.setEmail(oAuth2UserInfo.getEmail());
+        userProfileInfo.setUrlPicture(oAuth2UserInfo.getUrlPicture());
+        return userProfileManager.create(userProfileInfo, savedUser.getSeqUser());
     }
 
     private UserProfileInfo updateUser(UserProfileInfo savedUserProfile, OAuth2UserInfo oAuth2UserInfo) {

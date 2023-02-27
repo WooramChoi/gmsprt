@@ -122,6 +122,13 @@
 `
     }
     routes.push({ path: '/destiny', component: destiny, props: true });
+    
+    const error = {
+    		template:`
+	 		<h3>Error!</h3>
+	 		`
+    };
+    routes.push({ path: '/error', component: error, props: true });
 
     const notFound = {
         template: `

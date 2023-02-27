@@ -1,11 +1,11 @@
 package net.adonika.gmsprt.exception;
 
-import org.springframework.http.HttpStatus;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
 
 public class ErrorResp extends RuntimeException{
 
@@ -18,64 +18,40 @@ public class ErrorResp extends RuntimeException{
         this.status = status;
     }
 
-    public static ErrorResp getBadRequest() {
-        return new ErrorResp(HttpStatus.BAD_REQUEST, "exception.bad_request");  // TODO MessageSource
+    public static ErrorResp getBadRequest(FieldError... fieldErrors) {
+    	return getInstance(HttpStatus.BAD_REQUEST, "exception.bad_request", fieldErrors);
     }
-    public static ErrorResp getUnauthorized() {
-        return new ErrorResp(HttpStatus.UNAUTHORIZED, "exception.unauthorized");  // TODO MessageSource
+    public static ErrorResp getUnauthorized(FieldError... fieldErrors) {
+        return getInstance(HttpStatus.UNAUTHORIZED, "exception.unauthorized", fieldErrors);
     }
-    public static ErrorResp getForbidden() {
-        return new ErrorResp(HttpStatus.FORBIDDEN, "exception.forbidden");  // TODO MessageSource
+    public static ErrorResp getForbidden(FieldError... fieldErrors) {
+        return getInstance(HttpStatus.FORBIDDEN, "exception.forbidden", fieldErrors);
     }
-    public static ErrorResp getNotFound() {
-        return new ErrorResp(HttpStatus.NOT_FOUND, "exception.not_found");  // TODO MessageSource
+    public static ErrorResp getNotFound(FieldError... fieldErrors) {
+        return getInstance(HttpStatus.NOT_FOUND, "exception.not_found", fieldErrors);
     }
-    public static ErrorResp getConflict() {
-        return new ErrorResp(HttpStatus.CONFLICT, "exception.conflict");  // TODO MessageSource
+    public static ErrorResp getConflict(FieldError... fieldErrors) {
+        return getInstance(HttpStatus.CONFLICT, "exception.conflict", fieldErrors);
     }
-    public static ErrorResp getInternalServerError() {
-        return new ErrorResp(HttpStatus.INTERNAL_SERVER_ERROR, "exception.internal_server_error");  // TODO MessageSource
+    public static ErrorResp getInternalServerError(FieldError... fieldErrors) {
+        return getInstance(HttpStatus.INTERNAL_SERVER_ERROR, "exception.internal_server_error", fieldErrors);
     }
-
-    private static class FieldError {
-        private String field;
-        private Object value;
-        private String reason;
-
-        private FieldError(){}
-        public FieldError(String field, Object value, String reason) {
-            this.field = field;
-            this.value = value;
-            this.reason = reason;
-        }
-
-        public String getField() {
-            return field;
-        }
-
-        public void setField(String field) {
-            this.field = field;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public void setValue(Object value) {
-            this.value = value;
-        }
-
-        public String getReason() {
-            return reason;
-        }
-
-        public void setReason(String reason) {
-            this.reason = reason;
-        }
+    public static ErrorResp getInstance(HttpStatus status, String message, FieldError... fieldErrors) {
+    	ErrorResp errorResp = new ErrorResp(status, message);
+    	if(fieldErrors != null) {
+    		for(FieldError fieldError: fieldErrors) {
+        		errorResp.addError(fieldError.getField(), fieldError.getValue(), fieldError.getReason());
+        	}
+    	}
+    	return errorResp;
     }
 
     public void addError(String field, Object value, String reason) {
         errors.add(new FieldError(field, value, reason));
+    }
+    
+    public HttpStatus getStatus() {
+    	return status;
     }
 
     public Map<String, Object> toData() {

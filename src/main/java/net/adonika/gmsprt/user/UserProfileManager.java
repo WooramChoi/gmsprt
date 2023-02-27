@@ -10,7 +10,7 @@ public interface UserProfileManager {
 
     UserProfileInfo getUserProfile(String provider, String sid);
 
-    UserProfileInfo create(String provider, String sid, String uid, String name, String email, String urlPicture, Long seqUser);
+    UserProfileInfo create(UserProfileInfo userProfileInfo, Long seqUser);
 
     UserProfileInfo update(UserProfileInfo userProfileInfo, List<String> ignores);
 

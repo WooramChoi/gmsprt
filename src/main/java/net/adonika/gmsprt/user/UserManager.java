@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface UserManager {
 
-    UserInfo create(String name, String email, String urlPicture);
+    UserInfo create(UserInfo userInfo);
 
     UserInfo getUserInfo(Long seqUser);
 
