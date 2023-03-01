@@ -9,7 +9,7 @@ import javax.persistence.*;
                 @UniqueConstraint(columnNames = {"PROVIDER", "SID"})
         }
 )
-public class UserProfileInfo extends CommInfo{
+public class UserProfileInfo extends CommInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

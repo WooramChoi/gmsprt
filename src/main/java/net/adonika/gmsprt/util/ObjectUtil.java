@@ -14,7 +14,7 @@ public class ObjectUtil {
 
         List<String> fieldNames = new ArrayList<>();
         Field[] declaredFields = c.getDeclaredFields();
-        for(Field field: declaredFields){
+        for (Field field : declaredFields) {
             fieldNames.add(field.getName());
         }
 

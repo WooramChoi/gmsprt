@@ -15,7 +15,10 @@ import java.util.List;
 @NoRepositoryBean
 public interface CommRepository<T, ID extends Serializable> extends JpaRepository<T, ID>, JpaSpecificationExecutor<T> {
     List<T> findAll(Specification<T> spec, EntityGraphType entityGraphType, String entityGraphName);
+
     Page<T> findAll(Specification<T> spec, Pageable pageable, EntityGraphType entityGraphType, String entityGraphName);
+
     List<T> findAll(Specification<T> spec, Sort sort, EntityGraphType entityGraphType, String entityGraphName);
+
     T findOne(Specification<T> spec, EntityGraphType entityGraphType, String entityGraphName);
 }

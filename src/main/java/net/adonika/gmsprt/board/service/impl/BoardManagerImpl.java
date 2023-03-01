@@ -37,32 +37,44 @@ public class BoardManagerImpl implements BoardManager {
 
     @Override
     public BoardInfo create(BoardInfo boardInfo, Long seqUser) {
-    	
-    	if(boardInfo.getSeqBoard() != null && boardInfo.getSeqBoard() > 0) {
-    		throw ErrorResp.getConflict(
-    				new FieldError(
-    						"seqBoard", boardInfo.getSeqBoard(),
-    						messageSource.getMessage("is_null", new String[]{"boardInfo.seqBoard"}, Locale.getDefault())
-    						)
-    				);
-    	}
-        
-    	if(seqUser != null) {
-    		UserInfo userInfo = userDao.findById(seqUser).orElseThrow(
-    				() -> ErrorResp.getNotFound(
-    						new FieldError(
-    								"seqUser", seqUser,
-    								messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-    								)
-    						)
-    				//() -> new NullPointerException("user not found")
-    				);
+
+        if (boardInfo.getSeqBoard() != null && boardInfo.getSeqBoard() > 0) {
+            throw ErrorResp.getConflict(
+                    new FieldError(
+                            "seqBoard", boardInfo.getSeqBoard(),
+                            messageSource.getMessage("is_null", new String[]{"boardInfo.seqBoard"}, Locale.getDefault())
+                    )
+            );
+        }
+
+        if (seqUser != null) {
+            UserInfo userInfo = userDao.findById(seqUser).orElseThrow(
+                    () -> ErrorResp.getNotFound(
+                            new FieldError(
+                                    "seqUser", seqUser,
+                                    messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+                            )
+                    )
+                    //() -> new NullPointerException("user not found")
+            );
             boardInfo.setUserInfo(userInfo);
-    	} else {
-    		String pwd = boardInfo.getPwd();	//TODO 암호화
+        } else {
+            String pwd = boardInfo.getPwd();    //TODO 암호화
             boardInfo.setPwd(pwd);
-    	}
+        }
 
         return boardDao.save(boardInfo);
+    }
+
+    @Override
+    public BoardInfo getOne(Long seqBoard) {
+        return boardDao.findById(seqBoard).orElseThrow(
+                () -> ErrorResp.getNotFound(
+                        new FieldError(
+                                "seqBoard", seqBoard,
+                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+                        )
+                )
+        );
     }
 }

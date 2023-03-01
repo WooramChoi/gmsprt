@@ -44,23 +44,23 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
     @Override
     public UserProfileInfo create(UserProfileInfo userProfileInfo, Long seqUser) {
-    	
-    	if(userProfileInfo.getSeqUserProfile() != null && userProfileInfo.getSeqUserProfile() > 0) {
-    		throw ErrorResp.getConflict(
-    				new FieldError(
-    						"seqUserProfile", userProfileInfo.getSeqUserProfile(),
-    						messageSource.getMessage("is_null", new String[] {"userProfileInfo.seqUserProfile"}, Locale.getDefault())
-    						));
-    	}
-    	
+
+        if (userProfileInfo.getSeqUserProfile() != null && userProfileInfo.getSeqUserProfile() > 0) {
+            throw ErrorResp.getConflict(
+                    new FieldError(
+                            "seqUserProfile", userProfileInfo.getSeqUserProfile(),
+                            messageSource.getMessage("is_null", new String[]{"userProfileInfo.seqUserProfile"}, Locale.getDefault())
+                    ));
+        }
+
         UserInfo userInfo = userDao.findById(seqUser).orElseThrow(
-        		() -> ErrorResp.getNotFound(
-						new FieldError(
-								"seqUser", seqUser,
-								messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-								)
-						)
-        		);
+                () -> ErrorResp.getNotFound(
+                        new FieldError(
+                                "seqUser", seqUser,
+                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+                        )
+                )
+        );
         userProfileInfo.setUserInfo(userInfo);
 
         return userProfileDao.save(userProfileInfo);
@@ -71,13 +71,13 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
         // TODO MessageSource
         UserProfileInfo savedUserProfile = userProfileDao.findById(userProfileInfo.getSeqUserProfile()).orElseThrow(
-        		() -> ErrorResp.getNotFound(
-        				new FieldError(
-        						"seqUserProfile", userProfileInfo.getSeqUserProfile(),
-								messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-        						)
-        				)
-        		);
+                () -> ErrorResp.getNotFound(
+                        new FieldError(
+                                "seqUserProfile", userProfileInfo.getSeqUserProfile(),
+                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+                        )
+                )
+        );
 
         logger.debug("before userProfileInfo: {}", savedUserProfile.toString());
         BeanUtils.copyProperties(userProfileInfo, savedUserProfile, ignores.toArray(new String[0]));

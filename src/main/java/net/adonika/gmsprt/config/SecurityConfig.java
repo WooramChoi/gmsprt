@@ -43,13 +43,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 잠깐 진행을 위해 시큐리티 off
         http
                 .csrf()
-                    .ignoringAntMatchers("/h2-console/**")  // For h2-console
-                    .and()
+                .ignoringAntMatchers("/h2-console/**")  // For h2-console
+                .and()
                 .headers()
-                    .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)) // For h2-console
-                    .and()
+                .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)) // For h2-console
+                .and()
                 .authorizeRequests()
-                    .anyRequest().permitAll();
+                .anyRequest().permitAll();
 
     }
 }

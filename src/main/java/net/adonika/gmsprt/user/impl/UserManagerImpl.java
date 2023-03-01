@@ -30,16 +30,16 @@ public class UserManagerImpl implements UserManager {
 
     @Override
     public UserInfo create(UserInfo userInfo) {
-    	
-    	if(userInfo.getSeqUser() != null && userInfo.getSeqUser() > 0) {
-    		throw ErrorResp.getConflict(
-    				new FieldError(
-    						"seqUser", userInfo.getSeqUser(),
-    						messageSource.getMessage("is_null", new String[]{"userInfo.seqUser"}, Locale.getDefault())
-    						)
-    				);
-    	}
-    	
+
+        if (userInfo.getSeqUser() != null && userInfo.getSeqUser() > 0) {
+            throw ErrorResp.getConflict(
+                    new FieldError(
+                            "seqUser", userInfo.getSeqUser(),
+                            messageSource.getMessage("is_null", new String[]{"userInfo.seqUser"}, Locale.getDefault())
+                    )
+            );
+        }
+
         return userDao.save(userInfo);
     }
 
@@ -52,13 +52,13 @@ public class UserManagerImpl implements UserManager {
     public UserInfo update(UserInfo userInfo, List<String> ignores) {
 
         UserInfo savedUser = userDao.findById(userInfo.getSeqUser()).orElseThrow(
-        		() -> ErrorResp.getNotFound(
-						new FieldError(
-								"seqUser", userInfo.getSeqUser(),
-								messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-								)
-						)
-        		);
+                () -> ErrorResp.getNotFound(
+                        new FieldError(
+                                "seqUser", userInfo.getSeqUser(),
+                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
+                        )
+                )
+        );
 
         logger.debug("before userInfo: {}", savedUser.toString());
         BeanUtils.copyProperties(userInfo, savedUser, ignores.toArray(new String[0]));

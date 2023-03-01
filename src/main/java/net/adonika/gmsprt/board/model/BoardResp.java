@@ -4,7 +4,7 @@ public class BoardResp {
 
     // BoardInfo
     private Long seqBoard;
-    private String subject;
+    private String title;
     private String content;
 
     // UserInfo
@@ -20,12 +20,12 @@ public class BoardResp {
         this.seqBoard = seqBoard;
     }
 
-    public String getSubject() {
-        return subject;
+    public String getTitle() {
+        return title;
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContent() {

@@ -17,14 +17,14 @@ public class BoardSpecificationBuilder extends CommSpecificationBuilder {
         Specification<BoardInfo> spec = super.build(BoardInfo.class, boardForm);
         BoardSpecification boardSpecification = new BoardSpecification();
 
-        if(StringUtils.hasText(boardForm.getName())){
+        if (StringUtils.hasText(boardForm.getName())) {
             spec = super.addSpecification(BoardInfo.class,
                     Operation.AND,
                     spec,
                     boardSpecification.likeName(boardForm.getName()));
         }
 
-        if(StringUtils.hasText(boardForm.getToc())){
+        if (StringUtils.hasText(boardForm.getToc())) {
             spec = super.addSpecification(BoardInfo.class,
                     Operation.AND,
                     spec,

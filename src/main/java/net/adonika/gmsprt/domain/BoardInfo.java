@@ -3,7 +3,7 @@ package net.adonika.gmsprt.domain;
 import javax.persistence.*;
 
 @Entity
-public class BoardInfo extends CommInfo{
+public class BoardInfo extends CommInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

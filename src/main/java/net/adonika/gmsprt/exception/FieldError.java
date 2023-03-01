@@ -1,11 +1,13 @@
 package net.adonika.gmsprt.exception;
 
 public class FieldError {
-	private String field;
+    private String field;
     private Object value;
     private String reason;
 
-    private FieldError(){}
+    private FieldError() {
+    }
+
     public FieldError(String field, Object value, String reason) {
         this.field = field;
         this.value = value;

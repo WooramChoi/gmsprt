@@ -11,4 +11,6 @@ public interface BoardManager {
 
     BoardInfo create(BoardInfo boardInfo, Long seqUser);
 
+    BoardInfo getOne(Long seqBoard);
+
 }

@@ -66,7 +66,7 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
-            if(principal != null && principal.getClass() == OAuth2UserPrincipal.class){
+            if (principal != null && principal.getClass() == OAuth2UserPrincipal.class) {
                 savedPrincipal = (OAuth2UserPrincipal) principal;
                 seqUser = savedPrincipal.getSeqUser();
             }
@@ -124,12 +124,12 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
             savedUser = userManager.getUserInfo(seqUser);
             logger.info("기존 유저 정보 조회 완료: [{}] {}", savedUser.getSeqUser(), savedUser.getName());
         }
-        
+
         UserProfileInfo userProfileInfo = new UserProfileInfo();
         userProfileInfo.setProvider(provider);
         userProfileInfo.setSid(oAuth2UserInfo.getSid());
         userProfileInfo.setUid(oAuth2UserInfo.getUid());
-        
+
         userProfileInfo.setName(oAuth2UserInfo.getName());
         userProfileInfo.setEmail(oAuth2UserInfo.getEmail());
         userProfileInfo.setUrlPicture(oAuth2UserInfo.getUrlPicture());
