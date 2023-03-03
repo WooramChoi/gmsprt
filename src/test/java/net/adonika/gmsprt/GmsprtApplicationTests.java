@@ -12,6 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.adonika.gmsprt.board.model.BoardResp;
+import net.adonika.gmsprt.domain.BoardInfo;
+import net.adonika.gmsprt.domain.UserInfo;
 import net.adonika.gmsprt.domain.UserProfileInfo;
 import net.adonika.gmsprt.util.ObjectUtil;
 
@@ -41,6 +47,37 @@ class GmsprtApplicationTests {
         String message_ko_2 = messageSource.getMessage("is_null", new String[] {"boardInfo.seqBoard"}, Locale.getDefault());
         logger.info(message_ko_2);
         Assertions.assertEquals(message_ko_2, "boardInfo.seqBoard은(는) 비어있어야 합니다.");
+    }
+    
+    @Test
+    void commRespSetProperties() {
+    	
+    	BoardInfo boardInfo = new BoardInfo();
+    	boardInfo.setSeqBoard(1L);
+    	boardInfo.setTitle("test title");
+        boardInfo.setContent("test content");
+        boardInfo.setName("test name");
+        boardInfo.setPwd("test password");
+        
+    	UserInfo userInfo = new UserInfo();
+    	userInfo.setSeqUser(1L);
+    	userInfo.setName("tester");
+    	userInfo.setEmail("tester@test.com");
+    	userInfo.setUrlPicture("https://");
+    	
+    	boardInfo.setUserInfo(userInfo);
+    	
+    	BoardResp boardResp = new BoardResp(boardInfo);
+    	logger.info("BoardResp:");
+    	
+    	ObjectMapper om = new ObjectMapper();
+    	try {
+			String boardRespJson = om.writeValueAsString(boardResp);
+			logger.info(boardRespJson);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+    	
     }
 
 }

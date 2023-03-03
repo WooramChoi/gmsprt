@@ -1,5 +1,6 @@
 package net.adonika.gmsprt.comm;
 
+import net.adonika.gmsprt.comm.model.CommForm;
 import net.adonika.gmsprt.util.DateUtil;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -13,7 +14,7 @@ public class CommSpecificationBuilder {
         AND, OR
     }
 
-    public <T> Specification<T> build(Class<T> c, SearchForm searchForm) {
+    public <T> Specification<T> build(Class<T> c, CommForm searchForm) {
 
         Specification<T> spec = null;
         CommSpecification commSpecification = new CommSpecification();

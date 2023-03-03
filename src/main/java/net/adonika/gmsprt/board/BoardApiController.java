@@ -6,6 +6,8 @@ import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.domain.BoardInfo;
 import net.adonika.gmsprt.domain.UserInfo;
 import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
@@ -34,23 +36,30 @@ public class BoardApiController {
         return null;
     }
 
+    /**
+     * 임시 컨트롤러
+     * @param seqBoard
+     * @return
+     */
     @GetMapping(value = {"/{seqBoard}"})
     public ResponseEntity<BoardResp> getOne(@PathVariable Long seqBoard) {
         BoardInfo boardInfo = boardManager.getOne(seqBoard);
 
-        BoardResp boardResp = new BoardResp();
-        boardResp.setSeqBoard(boardInfo.getSeqBoard());
-        boardResp.setTitle(boardInfo.getTitle());
-        boardResp.setContent(boardInfo.getContent());
-
-        UserInfo userInfo = boardInfo.getUserInfo();
-        if(userInfo != null){
-            boardResp.setName(userInfo.getName());
-            boardResp.setEmail(userInfo.getEmail());
-            boardResp.setUrlPicture(userInfo.getUrlPicture());
-        }else{
-            boardResp.setName(boardInfo.getName());
-        }
+//        BoardResp boardResp = new BoardResp();
+//        boardResp.setSeqBoard(boardInfo.getSeqBoard());
+//        boardResp.setTitle(boardInfo.getTitle());
+//        boardResp.setContent(boardInfo.getContent());
+//
+//        UserInfo userInfo = boardInfo.getUserInfo();
+//        if(userInfo != null){
+//            boardResp.setName(userInfo.getName());
+//            boardResp.setEmail(userInfo.getEmail());
+//            boardResp.setUrlPicture(userInfo.getUrlPicture());
+//        }else{
+//            boardResp.setName(boardInfo.getName());
+//        }
+        
+        BoardResp boardResp = new BoardResp(boardInfo);
 
         return ResponseEntity.ok(boardResp);
     }
