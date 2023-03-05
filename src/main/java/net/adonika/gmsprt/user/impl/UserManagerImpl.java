@@ -35,7 +35,7 @@ public class UserManagerImpl implements UserManager {
             throw ErrorResp.getConflict(
                     new FieldError(
                             "seqUser", userInfo.getSeqUser(),
-                            messageSource.getMessage("is_null", new String[]{"userInfo.seqUser"}, Locale.getDefault())
+                            messageSource.getMessage("validation.is_null", new String[]{"userInfo.seqUser"}, Locale.getDefault())
                     )
             );
         }

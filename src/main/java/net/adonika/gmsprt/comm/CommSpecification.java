@@ -35,14 +35,6 @@ public class CommSpecification {
         return (root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get(column), value);
     }
 
-    /**
-     * Use {@link #isTrue(Class, String)} or {@link #isFalse(Class, String)}
-     */
-    @Deprecated
-    public <T> Specification<T> equal(Class<T> c, String column, boolean value) {
-        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get(column), value);
-    }
-
     public <T> Specification<T> isTrue(Class<T> c, String column) {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get(column));
     }

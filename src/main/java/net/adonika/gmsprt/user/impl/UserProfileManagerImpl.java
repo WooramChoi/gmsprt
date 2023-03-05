@@ -49,7 +49,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
             throw ErrorResp.getConflict(
                     new FieldError(
                             "seqUserProfile", userProfileInfo.getSeqUserProfile(),
-                            messageSource.getMessage("is_null", new String[]{"userProfileInfo.seqUserProfile"}, Locale.getDefault())
+                            messageSource.getMessage("validation.is_null", new String[]{"userProfileInfo.seqUserProfile"}, Locale.getDefault())
                     ));
         }
 

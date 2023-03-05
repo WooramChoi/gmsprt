@@ -5,12 +5,18 @@ import net.adonika.gmsprt.domain.BoardInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface BoardManager {
+import java.util.List;
 
-    Page<BoardInfo> list(BoardForm boardForm, Pageable pageable);
+public interface BoardManager {
 
     BoardInfo create(BoardInfo boardInfo, Long seqUser);
 
-    BoardInfo getOne(Long seqBoard);
+    BoardInfo findById(Long seqBoard);
+
+    List<BoardInfo> findAll(BoardForm boardForm);
+
+    <T> T findById(Long seqBoard, Class<T> c);
+
+    <T> Page<T> findAll(BoardForm boardForm, Class<T> c, Pageable pageable);
 
 }

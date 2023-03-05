@@ -1,7 +1,13 @@
 package net.adonika.gmsprt.board;
 
-import java.util.Map;
-
+import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardResp;
+import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.domain.BoardInfo;
+import net.adonika.gmsprt.domain.UserInfo;
+import net.adonika.gmsprt.exception.ErrorResp;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.util.ObjectUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -12,15 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.adonika.gmsprt.board.model.BoardForm;
-import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.domain.BoardInfo;
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.exception.ErrorResp;
-import net.adonika.gmsprt.user.UserManager;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootTest
 public class BoardManagerTests {
@@ -32,53 +31,47 @@ public class BoardManagerTests {
 
     @Autowired
     private UserManager userManager;
-    
+
     private BoardInfo getBoardInfo(String title, String content, String name, String pwd) {
-    	BoardInfo boardInfo = new BoardInfo();
+        BoardInfo boardInfo = new BoardInfo();
         boardInfo.setTitle(title);
         boardInfo.setContent(content);
         boardInfo.setName(name);
         boardInfo.setPwd(pwd);
         return boardInfo;
     }
-    
+
     private UserInfo getUserInfo(String name, String email, String urlPicture) {
-    	UserInfo userInfo = new UserInfo();
-    	userInfo.setName(name);
-    	userInfo.setEmail(email);
-    	userInfo.setUrlPicture(urlPicture);
-    	return userInfo;
+        UserInfo userInfo = new UserInfo();
+        userInfo.setName(name);
+        userInfo.setEmail(email);
+        userInfo.setUrlPicture(urlPicture);
+        return userInfo;
     }
-    
+
     @Test
     void insertDuplicate() {
-    	BoardInfo savedBoard01 = boardManager.create(getBoardInfo("tTitle", "tContent", "tName", "1234"), null);
-    	logger.info("Save Board: {}", savedBoard01.getSeqBoard());
-    	
-    	BoardInfo boardInfo = getBoardInfo("tTitle2", "tContent2", "tName2", "1234");
-    	boardInfo.setSeqBoard(savedBoard01.getSeqBoard());
-    	try {
-    		BoardInfo savedBoard02 = boardManager.create(boardInfo, null);
-    		logger.error("Should Not Save!");
-    	}catch(ErrorResp e) {
-    		logger.info("Done", e);
-    		Map<String, Object> data = e.toData();
-    		
-    		ObjectMapper om = new ObjectMapper();
-    		try {
-				String jsonData = om.writeValueAsString(data);
-				logger.info(jsonData);
-			} catch (JsonProcessingException e1) {
-				e1.printStackTrace();
-			}
-    	}
+        BoardInfo savedBoard01 = boardManager.create(getBoardInfo("tTitle", "tContent", "tName", "1234"), null);
+        logger.info("Save Board: {}", savedBoard01.getSeqBoard());
+
+        BoardInfo boardInfo = getBoardInfo("tTitle2", "tContent2", "tName2", "1234");
+        boardInfo.setSeqBoard(savedBoard01.getSeqBoard());
+        try {
+            BoardInfo savedBoard02 = boardManager.create(boardInfo, null);
+            logger.error("Should Not Save!");
+        } catch (ErrorResp e) {
+            logger.info("Done", e);
+            Map<String, Object> data = e.toData();
+
+            logger.info(ObjectUtil.toJson(data));
+        }
     }
 
     @Test
     void insertAndSearch() {
 
         UserInfo savedUser = userManager.create(getUserInfo("ㄷㄷ", "dnfka4042@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w"));
-        
+
         BoardInfo savedBoard01 = boardManager.create(getBoardInfo("test1", "ㅇㅇ_1", "ㅇㅇ1", "1234"), null);
         Assertions.assertNotNull(savedBoard01.getSeqBoard());
         logger.info("Save Board: {}", savedBoard01.getSeqBoard());
@@ -98,7 +91,7 @@ public class BoardManagerTests {
 
         BoardForm boardForm = new BoardForm();
         Pageable pageable = PageRequest.of(0, 10);
-        Page<BoardInfo> searchedList = boardManager.list(boardForm, pageable);
+        Page<BoardResp> searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
         Assertions.assertEquals(10, searchedList.getSize());
 
         /*
@@ -106,7 +99,7 @@ public class BoardManagerTests {
          */
         boardForm.setSelDetail("name");
         boardForm.setTxtDetail("ㄴㄴ");
-        searchedList = boardManager.list(boardForm, pageable);
+        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
         Assertions.assertEquals(5, searchedList.getTotalElements());
         boardForm.setSelDetail(null);
         boardForm.setTxtDetail(null);
@@ -116,7 +109,7 @@ public class BoardManagerTests {
             where bi.name like '%ㄷㄷ%' or ui.name like '%ㄷㄷ%'
          */
         boardForm.setName("ㄷㄷ");
-        searchedList = boardManager.list(boardForm, pageable);
+        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
         Assertions.assertEquals(3, searchedList.getTotalElements());
         boardForm.setName(null);
 
@@ -125,7 +118,7 @@ public class BoardManagerTests {
             where title like '%1%' or content like '%1%'
          */
         boardForm.setToc("1");
-        searchedList = boardManager.list(boardForm, pageable);
+        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
         Assertions.assertEquals(6, searchedList.getTotalElements());
 
         /*
@@ -134,7 +127,7 @@ public class BoardManagerTests {
          */
         boardForm.setSelDetail("name");
         boardForm.setTxtDetail("ㄴㄴ");
-        searchedList = boardManager.list(boardForm, pageable);
+        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
         Assertions.assertEquals(2, searchedList.getTotalElements());
     }
 
@@ -159,10 +152,9 @@ public class BoardManagerTests {
         boardManager.create(getBoardInfo("test9", "ccc03", null, null), savedUser03.getSeqUser());
 
         BoardForm boardForm = new BoardForm();
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<BoardInfo> list = boardManager.list(boardForm, pageable);
+        List<BoardInfo> list = boardManager.findAll(boardForm);
 
-        logger.info("Result set: {}", list.getSize());
+        logger.info("Result set: {}", list.size());
 //        for(int i=0; i<list.getSize(); i++){
 //            if(i < 5){
 //                BoardInfo boardInfo = list.getContent().get(i);

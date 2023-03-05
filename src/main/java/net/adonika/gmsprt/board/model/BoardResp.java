@@ -1,53 +1,15 @@
 package net.adonika.gmsprt.board.model;
 
-import org.springframework.beans.BeanUtils;
-
 import net.adonika.gmsprt.comm.model.CommResp;
-import net.adonika.gmsprt.domain.BoardInfo;
+import net.adonika.gmsprt.user.model.UserResp;
 
 public class BoardResp extends CommResp {
-
-    // BoardInfo
     private Long seqBoard;
     private String title;
     private String content;
     private String name;
-    private User user;
 
-    // UserInfo
-    public class User {
-    	private String name;
-    	private String email;
-        private String urlPicture;
-        
-		public String getName() {
-			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
-		}
-		public String getEmail() {
-			return email;
-		}
-		public void setEmail(String email) {
-			this.email = email;
-		}
-		public String getUrlPicture() {
-			return urlPicture;
-		}
-		public void setUrlPicture(String urlPicture) {
-			this.urlPicture = urlPicture;
-		}
-    }
-    
-    public BoardResp(BoardInfo boardInfo) {
-    	BeanUtils.copyProperties(boardInfo, this, new String[] {"userInfo"});
-    	
-    	if(boardInfo.getUserInfo() != null) {
-    		this.user = new User();
-    		BeanUtils.copyProperties(boardInfo.getUserInfo(), this.user);
-    	}
-    }
+    private UserResp user;
 
     public Long getSeqBoard() {
         return seqBoard;
@@ -81,12 +43,11 @@ public class BoardResp extends CommResp {
         this.name = name;
     }
 
-	public User getUser() {
-		return user;
-	}
+    public UserResp getUser() {
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-    
+    public void setUser(UserResp user) {
+        this.user = user;
+    }
 }

@@ -16,7 +16,7 @@ public class DateUtil {
     }
 
     public static String dateToString(Date date, String pattern) {
-        SimpleDateFormat sdf = null;
+        SimpleDateFormat sdf;
         if (StringUtils.hasText(pattern)) {
             sdf = new SimpleDateFormat(pattern);
         } else {
@@ -30,7 +30,7 @@ public class DateUtil {
     }
 
     public static Date stringToDate(String txtDt, String pattern) throws ParseException {
-        SimpleDateFormat sdf = null;
+        SimpleDateFormat sdf;
         if (StringUtils.hasText(pattern)) {
             sdf = new SimpleDateFormat(pattern);
         } else {
