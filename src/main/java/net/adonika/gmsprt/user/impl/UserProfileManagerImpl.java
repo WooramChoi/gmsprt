@@ -1,21 +1,27 @@
 package net.adonika.gmsprt.user.impl;
 
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.domain.UserProfileInfo;
-import net.adonika.gmsprt.exception.ErrorResp;
-import net.adonika.gmsprt.exception.FieldError;
-import net.adonika.gmsprt.user.UserProfileManager;
-import net.adonika.gmsprt.user.dao.UserDao;
-import net.adonika.gmsprt.user.dao.UserProfileDao;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Locale;
+import net.adonika.gmsprt.domain.UserInfo;
+import net.adonika.gmsprt.domain.UserProfileInfo;
+import net.adonika.gmsprt.user.UserProfileManager;
+import net.adonika.gmsprt.user.dao.UserDao;
+import net.adonika.gmsprt.user.dao.UserProfileDao;
+import net.adonika.gmsprt.user.model.UserProfileAdd;
+import net.adonika.gmsprt.user.model.UserProfileForm;
+import net.adonika.gmsprt.user.model.UserProfileModify;
+import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.util.ObjectUtil;
 
 @Service("userProfileManager")
 public class UserProfileManagerImpl implements UserProfileManager {
@@ -31,58 +37,112 @@ public class UserProfileManagerImpl implements UserProfileManager {
         this.userDao = userDao;
         this.messageSource = messageSource;
     }
-
-    @Override
-    public UserProfileInfo getUserProfile(Long seqUserProfile) {
-        return userProfileDao.findById(seqUserProfile).orElse(null);
-    }
-
-    @Override
-    public UserProfileInfo getUserProfile(String provider, String sid) {
-        return userProfileDao.findByProviderAndSid(provider, sid);
-    }
-
-    @Override
-    public UserProfileInfo create(UserProfileInfo userProfileInfo, Long seqUser) {
-
-        if (userProfileInfo.getSeqUserProfile() != null && userProfileInfo.getSeqUserProfile() > 0) {
-            throw ErrorResp.getConflict(
-                    new FieldError(
-                            "seqUserProfile", userProfileInfo.getSeqUserProfile(),
-                            messageSource.getMessage("validation.is_null", new String[]{"userProfileInfo.seqUserProfile"}, Locale.getDefault())
-                    ));
+    
+    private UserProfileVO convertTo(UserProfileInfo userProfileInfo) {
+        logger.debug("[convertTo] userProfileInfo to UserProfileVO start");
+        UserProfileVO instance = new UserProfileVO();
+        
+        /*
+         * TODO Entity 객체 내에 "userInfo" 라고 필드명을 정의해야하는 상황
+         */
+        BeanUtils.copyProperties(userProfileInfo, instance, "userInfo");
+        logger.debug("[convertTo] copy userProfileInfo to UserProfileVO done: {}", ObjectUtil.toJson(instance));
+        
+        UserInfo userInfo = userProfileInfo.getUserInfo();
+        if (userInfo != null) {
+            logger.debug("[convertTo] userProfileInfo has UserInfo: seqUser = {}", userInfo.getSeqUser());
+            
+            try {
+                /*
+                 * TODO VO 객체 내에 "user" 라고 필드명을 정의해야 userInfo 에 연결되는 상황
+                 */
+                ObjectUtil.copyToField(instance, "user", userInfo);
+                logger.debug("[convertTo] copy userInfo to \"user\" done: {}", ObjectUtil.toJson(instance));
+            } catch (NoSuchFieldException e) {
+                // TODO Auto-generated catch block
+                logger.error("[convertTo] UserProfileVO hasn't field of \"user\"");
+            }
         }
+        
+        return instance;
+    }
 
-        UserInfo userInfo = userDao.findById(seqUser).orElseThrow(
-                () -> ErrorResp.getNotFound(
-                        new FieldError(
-                                "seqUser", seqUser,
-                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-                        )
-                )
-        );
-        userProfileInfo.setUserInfo(userInfo);
+    @Transactional
+    @Override
+    public UserProfileVO addUserProfile(UserProfileAdd userProfileAdd, Long seqUser) {
+        logger.info("[addUserProfile] start");
+        UserProfileInfo userProfileInfo = new UserProfileInfo();
+        BeanUtils.copyProperties(userProfileAdd, userProfileInfo);
+        
+        if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
+            logger.info("[addUserProfile] has UserInfo: seqUser = {}", seqUser);
+            UserInfo userInfo = userDao.getById(seqUser);
+            userProfileInfo.setUserInfo(userInfo);
+            logger.info("[addUserProfile] set UserInfo done");
+        }
+        
+        UserProfileInfo savedUserProfileInfo = userProfileDao.save(userProfileInfo);
+        logger.info("[addUserProfile] done: seqUserProfile = {}", savedUserProfileInfo.getSeqUserProfile());
+        return convertTo(savedUserProfileInfo);
+    }
 
-        return userProfileDao.save(userProfileInfo);
+    @Transactional
+    @Override
+    public UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify, Long seqUser) {
+        logger.info("[modifyUserProfile] start: seqUserProfile = {} / seqUser = {}", seqUserProfile, seqUser);
+        UserProfileInfo userProfileInfo = userProfileDao.getById(seqUserProfile);
+        BeanUtils.copyProperties(userProfileModify, userProfileInfo, userProfileModify.getIgnores());
+        
+        // 연결된 유저를 변경하는 상황은 없을것이라고 간주.
+//        if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
+//            logger.info("[modifyUserProfile] has UserInfo: seqUser = {}", seqUser);
+//            UserInfo userInfo = userDao.getById(seqUser);
+//            userProfileInfo.setUserInfo(userInfo);
+//            logger.info("[modifyUserProfile] set UserInfo done");
+//        }
+        
+        UserProfileInfo savedUserProfileInfo = userProfileDao.save(userProfileInfo);
+        logger.info("[modifyUserProfile] done: seqUserProfile = {}", savedUserProfileInfo.getSeqUserProfile());
+        return convertTo(savedUserProfileInfo);
     }
 
     @Override
-    public UserProfileInfo update(UserProfileInfo userProfileInfo, List<String> ignores) {
+    public void removeUserProfile(Long seqUserProfile) {
+        // TODO Auto-generated method stub
+        
+    }
 
-        // TODO MessageSource
-        UserProfileInfo savedUserProfile = userProfileDao.findById(userProfileInfo.getSeqUserProfile()).orElseThrow(
-                () -> ErrorResp.getNotFound(
-                        new FieldError(
-                                "seqUserProfile", userProfileInfo.getSeqUserProfile(),
-                                messageSource.getMessage("exception.not_found", null, Locale.getDefault())
-                        )
-                )
-        );
+    @Transactional
+    @Override
+    public UserProfileVO findUserProfile(Long seqUserProfile) {
+        logger.info("[findUserProfile] start: seqUserProfile = {}", seqUserProfile);
+        UserProfileInfo savedUserProfileInfo = userProfileDao.getById(seqUserProfile);
+        logger.info("[findUserProfile] done: seqUserProfile = {}", seqUserProfile);
+        return convertTo(savedUserProfileInfo);
+    }
 
-        logger.debug("before userProfileInfo: {}", savedUserProfile.toString());
-        BeanUtils.copyProperties(userProfileInfo, savedUserProfile, ignores.toArray(new String[0]));
-        logger.debug("after userProfileInfo: {}", savedUserProfile.toString());
+    @Override
+    public List<UserProfileVO> findUserProfile(UserProfileForm userProfileForm) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-        return userProfileDao.save(userProfileInfo);
+    @Override
+    public Page<UserProfileVO> findUserProfile(UserProfileForm userProfileForm, Pageable pageable) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Transactional
+    @Override
+    public UserProfileVO findUserProfile(String provider, String sid) {
+        logger.info("[findUserProfile] start: provider = {} / sid = {}", provider, sid);
+        UserProfileInfo savedUserProfileInfo = userProfileDao.findByProviderAndSid(provider, sid).orElse(null);
+        logger.info("[findUserProfile] done: provider = {} / sid = {}", provider, sid);
+        if (savedUserProfileInfo == null) {
+            return null;
+        } else {
+            return convertTo(savedUserProfileInfo);
+        }
     }
 }

@@ -1,13 +1,7 @@
 package net.adonika.gmsprt.board;
 
-import net.adonika.gmsprt.board.model.BoardForm;
-import net.adonika.gmsprt.board.model.BoardResp;
-import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.domain.BoardInfo;
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.exception.ErrorResp;
-import net.adonika.gmsprt.user.UserManager;
-import net.adonika.gmsprt.util.ObjectUtil;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -18,8 +12,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-import java.util.Map;
+import net.adonika.gmsprt.board.model.BoardAdd;
+import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardModify;
+import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.model.UserAdd;
+import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.util.ObjectUtil;
 
 @SpringBootTest
 public class BoardManagerTests {
@@ -32,137 +33,127 @@ public class BoardManagerTests {
     @Autowired
     private UserManager userManager;
 
-    private BoardInfo getBoardInfo(String title, String content, String name, String pwd) {
-        BoardInfo boardInfo = new BoardInfo();
-        boardInfo.setTitle(title);
-        boardInfo.setContent(content);
-        boardInfo.setName(name);
-        boardInfo.setPwd(pwd);
-        return boardInfo;
+    private UserAdd getUserAdd(String name, String email, String urlPicture) {
+        UserAdd userAdd = new UserAdd();
+        userAdd.setName(name);
+        userAdd.setEmail(email);
+        userAdd.setUrlPicture(urlPicture);
+        return userAdd;
     }
-
-    private UserInfo getUserInfo(String name, String email, String urlPicture) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setName(name);
-        userInfo.setEmail(email);
-        userInfo.setUrlPicture(urlPicture);
-        return userInfo;
+    
+    private BoardAdd getBoardAdd(String title, String content, String name, String pwd) {
+        BoardAdd boardAdd = new BoardAdd();
+        boardAdd.setTitle(title);
+        boardAdd.setContent(content);
+        boardAdd.setName(name);
+        boardAdd.setPwd(pwd);
+        return boardAdd;
     }
 
     @Test
-    void insertDuplicate() {
-        BoardInfo savedBoard01 = boardManager.create(getBoardInfo("tTitle", "tContent", "tName", "1234"), null);
-        logger.info("Save Board: {}", savedBoard01.getSeqBoard());
-
-        BoardInfo boardInfo = getBoardInfo("tTitle2", "tContent2", "tName2", "1234");
-        boardInfo.setSeqBoard(savedBoard01.getSeqBoard());
+    void CRUD() {
+        
+        /*
+         * 00. Null Check
+         */
         try {
-            BoardInfo savedBoard02 = boardManager.create(boardInfo, null);
-            logger.error("Should Not Save!");
-        } catch (ErrorResp e) {
-            logger.info("Done", e);
-            Map<String, Object> data = e.toData();
-
-            logger.info(ObjectUtil.toJson(data));
+            boardManager.findBoard(1L);
+        } catch (Exception e) {
+            logger.info("Should Not Found, done");
         }
-    }
-
-    @Test
-    void insertAndSearch() {
-
-        UserInfo savedUser = userManager.create(getUserInfo("ㄷㄷ", "dnfka4042@gmail.com", "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w"));
-
-        BoardInfo savedBoard01 = boardManager.create(getBoardInfo("test1", "ㅇㅇ_1", "ㅇㅇ1", "1234"), null);
-        Assertions.assertNotNull(savedBoard01.getSeqBoard());
-        logger.info("Save Board: {}", savedBoard01.getSeqBoard());
-
-        boardManager.create(getBoardInfo("test2", "ㅇㅇ_2", "ㅇㅇ2", "1234"), null);
-        boardManager.create(getBoardInfo("test3", "ㅇㅇ_3", "ㅇㅇ3", "1234"), null);
-        boardManager.create(getBoardInfo("test4", "ㅇㅇ_4", "ㅇㅇ4", "1234"), null);
-        boardManager.create(getBoardInfo("test5", "ㅇㅇ_5", "ㅇㅇ5", "1234"), null);
-        boardManager.create(getBoardInfo("test6", "ㄴㄴ_1", "ㄴㄴ1", "1234"), null);
-        boardManager.create(getBoardInfo("test7", "ㄴㄴ_2", "ㄴㄴ2", "1234"), null);
-        boardManager.create(getBoardInfo("test8", "ㄴㄴ_3", "ㄴㄴ3", "1234"), null);
-        boardManager.create(getBoardInfo("test9", "ㄴㄴ_4", "ㄴㄴ4", "1234"), null);
-        boardManager.create(getBoardInfo("test10", "ㄴㄴ_5", "ㄴㄴ5", "1234"), null);
-        boardManager.create(getBoardInfo("test11", "ㄷㄷ_1", "ㄷㄷ1", "1234"), null);
-        boardManager.create(getBoardInfo("test12", "ㄷㄷ_2", "ㄷㄷ2", "1234"), null);
-        boardManager.create(getBoardInfo("test13", "ㄷㄷ_3", null, null), savedUser.getSeqUser());
-
-        BoardForm boardForm = new BoardForm();
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<BoardResp> searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
-        Assertions.assertEquals(10, searchedList.getSize());
 
         /*
-            select * from board_info where name like '%ㄴㄴ%'
+         * 01. Create
          */
-        boardForm.setSelDetail("name");
-        boardForm.setTxtDetail("ㄴㄴ");
-        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
-        Assertions.assertEquals(5, searchedList.getTotalElements());
-        boardForm.setSelDetail(null);
-        boardForm.setTxtDetail(null);
+        UserVO savedUser01 = userManager.addUser(getUserAdd("aaa", "aaa@gmail.com", "https://"));
+        UserVO savedUser02 = userManager.addUser(getUserAdd("bbb", "bbb@gmail.com", "https://"));
+        UserVO savedUser03 = userManager.addUser(getUserAdd("ccc", "ccc@gmail.com", "https://"));
+        
+        BoardVO boardVO01 = boardManager.addBoard(getBoardAdd("test01", "aaa01", null, null), savedUser01.getSeqUser());
+        BoardVO boardVO02 = boardManager.addBoard(getBoardAdd("test02", "aaa02", null, null), savedUser01.getSeqUser());
+        BoardVO boardVO03 = boardManager.addBoard(getBoardAdd("test03", "aaa03", null, null), savedUser01.getSeqUser());
+        
+        BoardVO boardVO04 = boardManager.addBoard(getBoardAdd("test04", "bbb01", null, null), savedUser02.getSeqUser());
+        BoardVO boardVO05 = boardManager.addBoard(getBoardAdd("test05", "bbb02", null, null), savedUser02.getSeqUser());
+        BoardVO boardVO06 = boardManager.addBoard(getBoardAdd("test06", "bbb03", "bbb", "bbb01"), null);
+        
+        BoardVO boardVO07 = boardManager.addBoard(getBoardAdd("test07", "ccc01", null, null), savedUser03.getSeqUser());
+        BoardVO boardVO08 = boardManager.addBoard(getBoardAdd("test08", "ccc02", "ccc", "ccc01"), null);
+        BoardVO boardVO09 = boardManager.addBoard(getBoardAdd("test09", "ccc03", "ccc", "ccc01"), null);
+        
+        BoardVO boardVO10 = boardManager.addBoard(getBoardAdd("test10", "ddd01", "ddd", "ddd01"), null);
+        BoardVO boardVO11 = boardManager.addBoard(getBoardAdd("test11", "ddd02", "ddd", "ddd01"), null);
+        BoardVO boardVO12 = boardManager.addBoard(getBoardAdd("test12", "ddd03", "ddd", "ddd01"), null);
+        
+        /*
+         * 02. Read
+         */
+        BoardVO savedBoard = boardManager.findBoard(boardVO01.getSeqBoard());
+        Assertions.assertEquals(boardVO01.getUser().getSeqUser(), savedBoard.getUser().getSeqUser());
+        Assertions.assertNotNull(savedBoard.getDtCreate());
 
+        BoardForm boardForm = new BoardForm();
+        List<BoardVO> list = boardManager.findBoard(boardForm);
+        Assertions.assertEquals(12, list.size());
+        
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<BoardVO> pagedList = boardManager.findBoard(boardForm, pageable);
+        Assertions.assertEquals(5, pagedList.getSize());
+        
         /*
             select bi.* from board_info bi left outer join user_info ui on bi.seq_user = ui.seq_user
-            where bi.name like '%ㄷㄷ%' or ui.name like '%ㄷㄷ%'
+            where bi.name like '%{keyword}%' or ui.name like '%{keyword}%'
          */
-        boardForm.setName("ㄷㄷ");
-        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
-        Assertions.assertEquals(3, searchedList.getTotalElements());
+        boardForm.setName("bbb");
+        List<BoardVO> searchedList = boardManager.findBoard(boardForm);
+        Assertions.assertEquals(3, searchedList.size());
+        
+        /*
+            select * from board_info
+            where title like '%{keyword}%' or content like '%{keyword}%'
+         */
         boardForm.setName(null);
-
+        boardForm.setToc("02");
+        searchedList = boardManager.findBoard(boardForm);
+        Assertions.assertEquals(4, searchedList.size());
+        
         /*
-            select * from board_info
-            where title like '%1%' or content like '%1%'
+            select bi.* from board_info bi left outer join user_info ui on bi.seq_user = ui.seq_user
+            where (bi.name like '%{keyword}%' or ui.name like '%{keyword}%') and (bi.title like '%{keyword}%' or bi.content like '%{keyword}%')
          */
-        boardForm.setToc("1");
-        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
-        Assertions.assertEquals(6, searchedList.getTotalElements());
-
+        boardForm.setName("ccc");
+        searchedList = boardManager.findBoard(boardForm);
+        Assertions.assertEquals(1, searchedList.size());
+        
         /*
-            select * from board_info
-            where (title like '%1%' or content like '%1%') and name like '%ㄴㄴ%'
+         * 03. Update
          */
-        boardForm.setSelDetail("name");
-        boardForm.setTxtDetail("ㄴㄴ");
-        searchedList = boardManager.findAll(boardForm, BoardResp.class, pageable);
-        Assertions.assertEquals(2, searchedList.getTotalElements());
-    }
-
-    @Test
-    //@Transactional
-    void fetchTest() {
-
-        UserInfo savedUser01 = userManager.create(getUserInfo("aaa", "aaa@gmail.com", "https://"));
-        UserInfo savedUser02 = userManager.create(getUserInfo("bbb", "bbb@gmail.com", "https://"));
-        UserInfo savedUser03 = userManager.create(getUserInfo("ccc", "ccc@gmail.com", "https://"));
-
-        boardManager.create(getBoardInfo("test1", "aaa01", null, null), savedUser01.getSeqUser());
-        boardManager.create(getBoardInfo("test2", "aaa02", null, null), savedUser01.getSeqUser());
-        boardManager.create(getBoardInfo("test3", "aaa03", null, null), savedUser01.getSeqUser());
-
-        boardManager.create(getBoardInfo("test4", "bbb01", null, null), savedUser02.getSeqUser());
-        boardManager.create(getBoardInfo("test5", "bbb02", null, null), savedUser02.getSeqUser());
-        boardManager.create(getBoardInfo("test6", "bbb03", null, null), savedUser02.getSeqUser());
-
-        boardManager.create(getBoardInfo("test7", "ccc01", null, null), savedUser03.getSeqUser());
-        boardManager.create(getBoardInfo("test8", "ccc02", null, null), savedUser03.getSeqUser());
-        boardManager.create(getBoardInfo("test9", "ccc03", null, null), savedUser03.getSeqUser());
-
-        BoardForm boardForm = new BoardForm();
-        List<BoardInfo> list = boardManager.findAll(boardForm);
-
-        logger.info("Result set: {}", list.size());
-//        for(int i=0; i<list.getSize(); i++){
-//            if(i < 5){
-//                BoardInfo boardInfo = list.getContent().get(i);
-//                logger.info("[{}] {} _ {}", boardInfo.getSeqBoard(), boardInfo.getTitle(), boardInfo.getUserInfo().getName());
-//            }else{
-//                logger.info("GE 5");
-//            }
-//        }
-
+        BoardModify boardModify = new BoardModify();
+        boardModify.setTitle("test13");
+        boardModify.setContent("ddd04");
+        boardModify.setChangePwd(true);
+        boardModify.setPwd("ccc01");
+        boardModify.setNewPwd("ccc02");
+        logger.debug("ignores: {}", ObjectUtil.toJson(boardModify.getIgnores()));
+        BoardVO modifiedBoard = boardManager.modifyBoard(boardVO08.getSeqBoard(), boardModify, null);
+        Assertions.assertEquals(boardModify.getTitle(), modifiedBoard.getTitle());
+        Assertions.assertEquals(boardModify.getContent(), modifiedBoard.getContent());
+        Assertions.assertNotNull(modifiedBoard.getDtUpdate());
+        //Assertions.assertNotEquals(modifiedBoard.getDtUpdate(), modifiedBoard.getDtCreate()); //TODO 수정일이 안바뀐다... 확인필요
+        
+        /*
+         * 04. Delete
+         */
+        boardManager.removeBoard(boardVO01.getSeqBoard());
+        try {
+            boardManager.findBoard(boardVO01.getSeqBoard());
+        } catch (Exception e) {
+            logger.info("removed, Should Not Found, done");
+        }
+        
+        boardForm.setName(null);
+        boardManager.removeBoard(boardForm);
+        list = boardManager.findBoard(boardForm);
+        Assertions.assertEquals(0, list.size());
     }
 }

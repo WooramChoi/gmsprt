@@ -1,15 +1,34 @@
 package net.adonika.gmsprt.board.model;
 
-import net.adonika.gmsprt.comm.model.CommResp;
-import net.adonika.gmsprt.user.model.UserResp;
+import java.util.Objects;
 
-public class BoardResp extends CommResp {
+import net.adonika.gmsprt.comm.model.CommVO;
+import net.adonika.gmsprt.user.model.UserVO;
+
+public class BoardVO extends CommVO {
     private Long seqBoard;
     private String title;
     private String content;
     private String name;
 
-    private UserResp user;
+    private UserVO user;
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(seqBoard);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BoardVO other = (BoardVO) obj;
+        return Objects.equals(seqBoard, other.seqBoard);
+    }
 
     public Long getSeqBoard() {
         return seqBoard;
@@ -43,11 +62,11 @@ public class BoardResp extends CommResp {
         this.name = name;
     }
 
-    public UserResp getUser() {
+    public UserVO getUser() {
         return user;
     }
 
-    public void setUser(UserResp user) {
+    public void setUser(UserVO user) {
         this.user = user;
     }
 }

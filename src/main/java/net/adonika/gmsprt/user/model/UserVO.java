@@ -1,12 +1,31 @@
 package net.adonika.gmsprt.user.model;
 
-import net.adonika.gmsprt.comm.model.CommResp;
+import java.util.Objects;
 
-public class UserResp extends CommResp {
+import net.adonika.gmsprt.comm.model.CommVO;
+
+public class UserVO extends CommVO {
     private Long seqUser;
     private String name;
     private String email;
     private String urlPicture;
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(seqUser);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        UserVO other = (UserVO) obj;
+        return Objects.equals(seqUser, other.seqUser);
+    }
 
     public Long getSeqUser() {
         return seqUser;

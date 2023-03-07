@@ -1,13 +1,16 @@
 package net.adonika.gmsprt.user;
 
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.domain.UserProfileInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import net.adonika.gmsprt.user.model.UserAdd;
+import net.adonika.gmsprt.user.model.UserProfileAdd;
+import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.user.model.UserVO;
 
 @SpringBootTest
 public class UserManagerTests {
@@ -20,37 +23,37 @@ public class UserManagerTests {
     @Autowired
     private UserProfileManager userProfileManager;
 
-    private UserInfo getUserInfo(String name, String email, String urlPicture) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setName(name);
-        userInfo.setEmail(email);
-        userInfo.setUrlPicture(urlPicture);
-        return userInfo;
+    private UserAdd getUserAdd(String name, String email, String urlPicture) {
+        UserAdd userAdd = new UserAdd();
+        userAdd.setName(name);
+        userAdd.setEmail(email);
+        userAdd.setUrlPicture(urlPicture);
+        return userAdd;
     }
 
-    private UserProfileInfo getUserProfileInfo(String provider, String sid, String uid, String name, String email, String urlPicture) {
-        UserProfileInfo userProfileInfo = new UserProfileInfo();
-        userProfileInfo.setProvider(provider);
-        userProfileInfo.setSid(sid);
-        userProfileInfo.setUid(uid);
+    private UserProfileAdd getUserProfileAdd(String provider, String sid, String uid, String name, String email, String urlPicture) {
+        UserProfileAdd userProfileAdd = new UserProfileAdd();
+        userProfileAdd.setProvider(provider);
+        userProfileAdd.setSid(sid);
+        userProfileAdd.setUid(uid);
 
-        userProfileInfo.setName(name);
-        userProfileInfo.setEmail(email);
-        userProfileInfo.setUrlPicture(urlPicture);
-        return userProfileInfo;
+        userProfileAdd.setName(name);
+        userProfileAdd.setEmail(email);
+        userProfileAdd.setUrlPicture(urlPicture);
+        return userProfileAdd;
     }
 
     @Test
     void create() {
 
-        UserInfo savedUser = userManager.create(getUserInfo(
+        UserVO savedUser = userManager.addUser(getUserAdd(
                 "Wooram Choi", "dnfka4042@gmail.com",
                 "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w")
         );
         Assertions.assertNotNull(savedUser.getSeqUser());
         logger.info("Save User : {}", savedUser.getSeqUser());
 
-        UserProfileInfo savedUserProfile = userProfileManager.create(getUserProfileInfo(
+        UserProfileVO savedUserProfile = userProfileManager.addUserProfile(getUserProfileAdd(
                         "google", "102693227186529279417", "102693227186529279417",
                         savedUser.getName(), savedUser.getEmail(), savedUser.getUrlPicture()),
                 savedUser.getSeqUser()
@@ -58,9 +61,9 @@ public class UserManagerTests {
 
         Assertions.assertNotNull(savedUserProfile.getSeqUserProfile());
         logger.info("Save User Profile: {} ", savedUserProfile.getSeqUserProfile());
-        Assertions.assertNotNull(savedUserProfile.getUserInfo());
-        Assertions.assertNotNull(savedUserProfile.getUserInfo().getSeqUser());
-        logger.info("Seq User in User Profile: {}", savedUserProfile.getUserInfo().getSeqUser());
+        Assertions.assertNotNull(savedUserProfile.getUser());
+        Assertions.assertNotNull(savedUserProfile.getUser().getSeqUser());
+        logger.info("Seq User in User Profile: {}", savedUserProfile.getUser().getSeqUser());
 
         Assertions.assertNotNull(savedUser.getDtCreate());
         logger.info("dt_create: {}", savedUser.getDtCreate());

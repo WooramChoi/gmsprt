@@ -1,13 +1,7 @@
 package net.adonika.gmsprt.user.impl;
 
-import net.adonika.gmsprt.domain.UserInfo;
-import net.adonika.gmsprt.domain.UserProfileInfo;
-import net.adonika.gmsprt.security.model.OAuth2UserInfo;
-import net.adonika.gmsprt.security.model.OAuth2UserInfoFactory;
-import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
-import net.adonika.gmsprt.user.UserManager;
-import net.adonika.gmsprt.user.UserProfileManager;
-import net.adonika.gmsprt.util.ObjectUtil;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -18,9 +12,16 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import net.adonika.gmsprt.security.model.OAuth2UserInfo;
+import net.adonika.gmsprt.security.model.OAuth2UserInfoFactory;
+import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.UserProfileManager;
+import net.adonika.gmsprt.user.model.UserAdd;
+import net.adonika.gmsprt.user.model.UserProfileAdd;
+import net.adonika.gmsprt.user.model.UserProfileModify;
+import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.user.model.UserVO;
 
 @Service
 public class OAuth2UserManager extends DefaultOAuth2UserService {
@@ -74,16 +75,16 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         /* <!-- //Get Principal --> */
 
         /* <!-- Save User --> */
-        UserProfileInfo savedUserProfile = userProfileManager.getUserProfile(provider, oAuth2UserInfo.getSid());
+        UserProfileVO savedUserProfile = userProfileManager.findUserProfile(provider, oAuth2UserInfo.getSid());
         if (savedUserProfile == null) {
             logger.info("신규회원, 저장 시도");
             savedUserProfile = createUser(seqUser, provider, oAuth2UserInfo);
-            seqUser = savedUserProfile.getUserInfo().getSeqUser();
+            seqUser = savedUserProfile.getUser().getSeqUser();
             logger.info("신규회원, 저장 완료: {}({}) -> {}", savedUserProfile.getName(), savedUserProfile.getSid(), savedUserProfile.getSeqUserProfile());
         } else {
             logger.info("기존회원[{}], 저장 시도", seqUser);
-            savedUserProfile = updateUser(savedUserProfile, oAuth2UserInfo);
-            seqUser = savedUserProfile.getUserInfo().getSeqUser();
+            savedUserProfile = updateUser(seqUser, savedUserProfile.getSeqUserProfile(), oAuth2UserInfo);
+            seqUser = savedUserProfile.getUser().getSeqUser();
             /*
                 TODO 조회된 UserProfile.UserInfo.seqUser 와 Principal.seqUser 를 비교해야한다
                  -> 이미 user 가 생성된 userProfile 을 나중에 연결하려는 케이스
@@ -108,45 +109,42 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         return savedPrincipal;
     }
 
-    private UserProfileInfo createUser(Long seqUser, String provider, OAuth2UserInfo oAuth2UserInfo) {
+    private UserProfileVO createUser(Long seqUser, String provider, OAuth2UserInfo oAuth2UserInfo) {
 
-        UserInfo savedUser = null;
+        UserVO savedUser;
         if (seqUser == null) {
             logger.info("신규 유저 정보 생성");
-            UserInfo userInfo = new UserInfo();
-            userInfo.setName(oAuth2UserInfo.getName());
-            userInfo.setEmail(oAuth2UserInfo.getEmail());
-            userInfo.setUrlPicture(oAuth2UserInfo.getUrlPicture());
-            savedUser = userManager.create(userInfo);
+            UserAdd userAdd = new UserAdd();
+            userAdd.setName(oAuth2UserInfo.getName());
+            userAdd.setEmail(oAuth2UserInfo.getEmail());
+            userAdd.setUrlPicture(oAuth2UserInfo.getUrlPicture());
+            savedUser = userManager.addUser(userAdd);
             logger.info("신규 유저 정보 생성 완료: [{}] {}", savedUser.getSeqUser(), savedUser.getName());
         } else {
             logger.info("기존 유저 정보 조회");
-            savedUser = userManager.getUserInfo(seqUser);
+            savedUser = userManager.findUser(seqUser);
             logger.info("기존 유저 정보 조회 완료: [{}] {}", savedUser.getSeqUser(), savedUser.getName());
         }
+        
+        UserProfileAdd userProfileAdd = new UserProfileAdd();
+        userProfileAdd.setProvider(provider);
+        userProfileAdd.setSid(oAuth2UserInfo.getSid());
+        userProfileAdd.setUid(oAuth2UserInfo.getUid());
 
-        UserProfileInfo userProfileInfo = new UserProfileInfo();
-        userProfileInfo.setProvider(provider);
-        userProfileInfo.setSid(oAuth2UserInfo.getSid());
-        userProfileInfo.setUid(oAuth2UserInfo.getUid());
-
-        userProfileInfo.setName(oAuth2UserInfo.getName());
-        userProfileInfo.setEmail(oAuth2UserInfo.getEmail());
-        userProfileInfo.setUrlPicture(oAuth2UserInfo.getUrlPicture());
-        return userProfileManager.create(userProfileInfo, savedUser.getSeqUser());
+        userProfileAdd.setName(oAuth2UserInfo.getName());
+        userProfileAdd.setEmail(oAuth2UserInfo.getEmail());
+        userProfileAdd.setUrlPicture(oAuth2UserInfo.getUrlPicture());
+        return userProfileManager.addUserProfile(userProfileAdd, savedUser.getSeqUser());
     }
 
-    private UserProfileInfo updateUser(UserProfileInfo savedUserProfile, OAuth2UserInfo oAuth2UserInfo) {
+    private UserProfileVO updateUser(Long seqUser, Long seqUserProfile, OAuth2UserInfo oAuth2UserInfo) {
+        
+        UserProfileModify userProfileModify = new UserProfileModify();
+        userProfileModify.setName(oAuth2UserInfo.getName());
+        userProfileModify.setEmail(oAuth2UserInfo.getEmail());
+        userProfileModify.setUrlPicture(oAuth2UserInfo.getUrlPicture());
 
-        savedUserProfile.setName(oAuth2UserInfo.getName());
-        savedUserProfile.setEmail(oAuth2UserInfo.getEmail());
-        savedUserProfile.setUrlPicture(oAuth2UserInfo.getUrlPicture());
-
-        // TODO 서비스에 ignores 를 일일히 전달해주기 불편하다
-        List<String> ignores = ObjectUtil.getFieldNames(UserProfileInfo.class);
-        ignores.removeAll(Arrays.asList("name", "email", "urlPicture"));
-
-        return userProfileManager.update(savedUserProfile, ignores);
+        return userProfileManager.modifyUserProfile(seqUserProfile, userProfileModify, seqUser);
     }
 
 }

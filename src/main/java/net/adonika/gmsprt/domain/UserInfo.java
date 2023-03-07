@@ -1,8 +1,10 @@
 package net.adonika.gmsprt.domain;
 
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class UserInfo extends CommInfo {
@@ -20,9 +22,6 @@ public class UserInfo extends CommInfo {
 
     @Column(length = 100)
     private String urlPicture;
-
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = UserProfileInfo.class, mappedBy = "userInfo")
-    private List<UserProfileInfo> userProfileInfos = new ArrayList<>();
 
     public Long getSeqUser() {
         return seqUser;
@@ -54,13 +53,5 @@ public class UserInfo extends CommInfo {
 
     public void setUrlPicture(String urlProfile) {
         this.urlPicture = urlProfile;
-    }
-
-    public List<UserProfileInfo> getUserProfileInfos() {
-        return userProfileInfos;
-    }
-
-    public void setUserProfileInfos(List<UserProfileInfo> userProfileInfos) {
-        this.userProfileInfos = userProfileInfos;
     }
 }

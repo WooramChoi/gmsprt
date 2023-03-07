@@ -1,17 +1,29 @@
 package net.adonika.gmsprt.user;
 
-import net.adonika.gmsprt.domain.UserProfileInfo;
-
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import net.adonika.gmsprt.user.model.UserProfileAdd;
+import net.adonika.gmsprt.user.model.UserProfileForm;
+import net.adonika.gmsprt.user.model.UserProfileModify;
+import net.adonika.gmsprt.user.model.UserProfileVO;
+
 public interface UserProfileManager {
-
-    UserProfileInfo getUserProfile(Long seqUserProfile);
-
-    UserProfileInfo getUserProfile(String provider, String sid);
-
-    UserProfileInfo create(UserProfileInfo userProfileInfo, Long seqUser);
-
-    UserProfileInfo update(UserProfileInfo userProfileInfo, List<String> ignores);
+    
+    UserProfileVO addUserProfile(UserProfileAdd userProfileAdd, Long seqUser);
+    
+    UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify, Long seqUser);
+    
+    void removeUserProfile(Long seqUserProfile);
+    
+    UserProfileVO findUserProfile(Long seqUserProfile);
+    
+    List<UserProfileVO> findUserProfile(UserProfileForm userProfileForm);
+    
+    Page<UserProfileVO> findUserProfile(UserProfileForm userProfileForm, Pageable pageable);
+    
+    UserProfileVO findUserProfile(String provider, String sid);
 
 }

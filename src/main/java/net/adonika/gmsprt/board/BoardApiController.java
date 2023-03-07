@@ -1,7 +1,7 @@
 package net.adonika.gmsprt.board;
 
-import net.adonika.gmsprt.board.model.BoardResp;
-import net.adonika.gmsprt.board.model.CreateBoardReq;
+import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.model.BoardAdd;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
 
@@ -23,8 +23,8 @@ public class BoardApiController {
     }
 
     @PostMapping(value = {""})
-    public ResponseEntity<BoardResp> create(
-            @RequestBody @Valid CreateBoardReq createBoardReq,
+    public ResponseEntity<BoardVO> create(
+            @RequestBody @Valid BoardAdd createBoardReq,
             Errors errors,
             @AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal
     ) {
@@ -40,8 +40,8 @@ public class BoardApiController {
      * @return
      */
     @GetMapping(value = {"/{seqBoard}"})
-    public ResponseEntity<BoardResp> getOne(@PathVariable Long seqBoard) {
-        BoardResp boardResp = boardManager.findById(seqBoard, BoardResp.class);
+    public ResponseEntity<BoardVO> getOne(@PathVariable Long seqBoard) {
+        BoardVO boardVO = boardManager.findBoard(seqBoard);
 
 //        BoardResp boardResp = new BoardResp();
 //        boardResp.setSeqBoard(boardInfo.getSeqBoard());
@@ -57,6 +57,6 @@ public class BoardApiController {
 //            boardResp.setName(boardInfo.getName());
 //        }
 
-        return ResponseEntity.ok(boardResp);
+        return ResponseEntity.ok(boardVO);
     }
 }

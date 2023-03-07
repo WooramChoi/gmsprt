@@ -2,7 +2,7 @@ package net.adonika.gmsprt.board.model;
 
 import javax.validation.constraints.NotBlank;
 
-public class CreateBoardReq {
+public class BoardAdd {
 
     @NotBlank
     private String title;

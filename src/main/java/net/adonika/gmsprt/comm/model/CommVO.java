@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 
-public class CommResp {
+public class CommVO {
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dtCreate;
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)

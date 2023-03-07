@@ -36,7 +36,6 @@ public class CustomRestControllerAdvice {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         String message = (e.getMessage() != null) ? e.getMessage() : e.toString();
-        ;
 
         ErrorResp errorResp = ErrorResp.getInstance(status, message);
         return ResponseEntity.status(errorResp.getStatus()).body(errorResp.toData());
