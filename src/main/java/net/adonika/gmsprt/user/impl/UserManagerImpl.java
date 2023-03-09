@@ -1,6 +1,7 @@
 package net.adonika.gmsprt.user.impl;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.adonika.gmsprt.domain.UserInfo;
+import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.user.UserManager;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.model.UserAdd;
@@ -56,10 +58,14 @@ public class UserManagerImpl implements UserManager {
     @Override
     public UserVO modifyUser(Long seqUser, UserModify userModify) {
         logger.info("[modifyUser] start: seqUser = {}", seqUser);
-        UserInfo userInfo = userDao.getById(seqUser);
+        UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqUser", seqUser, messageSource.getMessage("validation.user.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         BeanUtils.copyProperties(userModify, userInfo, userModify.getIgnores());
         
-        UserInfo savedUserInfo = userDao.save(userInfo);
+        UserInfo savedUserInfo = userDao.saveAndFlush(userInfo);
         logger.info("[modifyUser] done: seqUser = {}", savedUserInfo.getSeqUser());
         return convertTo(savedUserInfo);
     }
@@ -74,7 +80,11 @@ public class UserManagerImpl implements UserManager {
     @Override
     public UserVO findUser(Long seqUser) {
         logger.info("[findUser] start: seqUser = {}", seqUser);
-        UserInfo savedUserInfo= userDao.getById(seqUser);
+        UserInfo savedUserInfo= userDao.findById(seqUser).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqUser", seqUser, messageSource.getMessage("validation.user.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         logger.info("[findUser] done: seqUser = {}", seqUser);
         return convertTo(savedUserInfo);
     }

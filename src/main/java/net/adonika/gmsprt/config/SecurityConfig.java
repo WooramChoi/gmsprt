@@ -17,8 +17,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf()
-                    .ignoringAntMatchers("/h2-console/**")  // For h2-console
-                    .and()
+                    //.ignoringAntMatchers("/h2-console/**")  // For h2-console
+                    .disable()
                 .headers()
                     .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)) // For h2-console
                     .and()
@@ -35,6 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                             "/**/*.css",
                             "/**/*.js").permitAll()
                     .antMatchers("/oauth2/**").permitAll()
+                    .antMatchers("/boards/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
                 .oauth2Login()

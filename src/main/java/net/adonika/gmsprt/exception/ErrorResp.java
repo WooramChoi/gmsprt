@@ -10,12 +10,37 @@ import org.springframework.http.HttpStatus;
 public class ErrorResp extends RuntimeException {
 
     private static final long serialVersionUID = 3078820401247480145L;
-    private HttpStatus status;
-    private final List<FieldError> errors = new ArrayList<>();
+    private final HttpStatus status;
+    private final List<FieldError> errors;
 
     public ErrorResp(HttpStatus status, String message) {
         super(message);
         this.status = status;
+        this.errors = new ArrayList<>();
+    }
+    
+    private class FieldError {
+        private String field;
+        private Object value;
+        private String reason;
+
+        public FieldError(String field, Object value, String reason) {
+            this.field = field;
+            this.value = value;
+            this.reason = reason;
+        }
+
+        public String getField() {
+            return field;
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public String getReason() {
+            return reason;
+        }
     }
 
     public static ErrorResp getBadRequest() {

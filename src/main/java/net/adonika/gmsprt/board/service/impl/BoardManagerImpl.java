@@ -98,7 +98,11 @@ public class BoardManagerImpl implements BoardManager {
         
         if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
             logger.info("[addBoard] has UserInfo: seqUser = {}", seqUser);
-            UserInfo userInfo = userDao.getById(seqUser);
+            UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
+                ErrorResp errorResp = ErrorResp.getNotFound();
+                errorResp.addError("seqUser", seqUser, messageSource.getMessage("validation.user.not_found", null, Locale.getDefault()));
+                return errorResp;
+            });
             boardInfo.setUserInfo(userInfo);
             logger.info("[addBoard] set UserInfo done");
         }
@@ -119,7 +123,11 @@ public class BoardManagerImpl implements BoardManager {
     @Override
     public BoardVO modifyBoard(Long seqBoard, BoardModify boardModify, Long seqUser) {
         logger.info("[modifyBoard] start: seqBoard = {} / seqUser = {}", seqBoard, seqUser);
-        BoardInfo boardInfo = boardDao.getById(seqBoard);
+        BoardInfo boardInfo = boardDao.findById(seqBoard).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqBoard", seqBoard, messageSource.getMessage("validation.board.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         
         // TODO 비즈니스 로직이 Service 에 존재해도 괜찮은가?
         // 일단 비밀번호가 VO 객체에 존재하지 않길 바라서 이런 모양이 됨.
@@ -172,7 +180,7 @@ public class BoardManagerImpl implements BoardManager {
             logger.info("[modifyBoard] set new pwd done");
         }
         
-        BoardInfo savedBoardInfo = boardDao.save(boardInfo);
+        BoardInfo savedBoardInfo = boardDao.saveAndFlush(boardInfo);
         logger.info("[modifyBoard] done: seqBoard = {}", savedBoardInfo.getSeqBoard());
         return convertTo(savedBoardInfo, BoardVO.class);
     }
@@ -203,7 +211,11 @@ public class BoardManagerImpl implements BoardManager {
     @Override
     public BoardVO findBoard(Long seqBoard) {
         logger.info("[findBoard] start: seqBoard = {}", seqBoard);
-        BoardInfo savedBoardInfo = boardDao.getById(seqBoard);
+        BoardInfo savedBoardInfo = boardDao.findById(seqBoard).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqBoard", seqBoard, messageSource.getMessage("validation.board.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         logger.info("[findBoard] done: seqBoard = {}", seqBoard);
         return convertTo(savedBoardInfo, BoardVO.class);
     }
@@ -215,7 +227,7 @@ public class BoardManagerImpl implements BoardManager {
         List<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardForm).build());
         logger.info("[findBoard] done: savedBoardInfos[{}]", savedBoardInfos.size());
         List<BoardVO> list = new ArrayList<>();
-        savedBoardInfos.forEach(boardInfo -> list.add(convertTo(boardInfo, BoardVO.class)));
+        savedBoardInfos.forEach(boardInfo->list.add(convertTo(boardInfo, BoardVO.class)));
         return list;
     }
 
@@ -225,6 +237,6 @@ public class BoardManagerImpl implements BoardManager {
         logger.info("[findBoard] start: boardForm = {} / pageable = {}", ObjectUtil.toJson(boardForm), ObjectUtil.toJson(pageable));
         Page<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardForm).build(), pageable);
         logger.info("[findBoard] done: savedBoardInfos[{}]", savedBoardInfos.getSize());
-        return savedBoardInfos.map(boardInfo -> convertTo(boardInfo, BoardVO.class));
+        return savedBoardInfos.map(boardInfo->convertTo(boardInfo, BoardVO.class));
     }
 }

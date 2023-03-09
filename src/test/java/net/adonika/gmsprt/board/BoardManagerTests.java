@@ -139,7 +139,7 @@ public class BoardManagerTests {
         Assertions.assertEquals(boardModify.getTitle(), modifiedBoard.getTitle());
         Assertions.assertEquals(boardModify.getContent(), modifiedBoard.getContent());
         Assertions.assertNotNull(modifiedBoard.getDtUpdate());
-        //Assertions.assertNotEquals(modifiedBoard.getDtUpdate(), modifiedBoard.getDtCreate()); //TODO 수정일이 안바뀐다... 확인필요
+        Assertions.assertNotEquals(modifiedBoard.getDtUpdate(), modifiedBoard.getDtCreate());
         
         /*
          * 04. Delete
@@ -151,6 +151,9 @@ public class BoardManagerTests {
             logger.info("removed, Should Not Found, done");
         }
         
+        /*
+         * 05. Delete by Query
+         */
         boardForm.setName(null);
         boardManager.removeBoard(boardForm);
         list = boardManager.findBoard(boardForm);

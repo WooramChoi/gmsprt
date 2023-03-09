@@ -1,6 +1,7 @@
 package net.adonika.gmsprt.user.impl;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.adonika.gmsprt.domain.UserInfo;
 import net.adonika.gmsprt.domain.UserProfileInfo;
+import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.user.UserProfileManager;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.dao.UserProfileDao;
@@ -76,7 +78,11 @@ public class UserProfileManagerImpl implements UserProfileManager {
         
         if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
             logger.info("[addUserProfile] has UserInfo: seqUser = {}", seqUser);
-            UserInfo userInfo = userDao.getById(seqUser);
+            UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
+                ErrorResp errorResp = ErrorResp.getNotFound();
+                errorResp.addError("seqUser", seqUser, messageSource.getMessage("validation.user.not_found", null, Locale.getDefault()));
+                return errorResp;
+            });
             userProfileInfo.setUserInfo(userInfo);
             logger.info("[addUserProfile] set UserInfo done");
         }
@@ -90,7 +96,11 @@ public class UserProfileManagerImpl implements UserProfileManager {
     @Override
     public UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify, Long seqUser) {
         logger.info("[modifyUserProfile] start: seqUserProfile = {} / seqUser = {}", seqUserProfile, seqUser);
-        UserProfileInfo userProfileInfo = userProfileDao.getById(seqUserProfile);
+        UserProfileInfo userProfileInfo = userProfileDao.findById(seqUserProfile).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqUserProfile", seqUserProfile, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         BeanUtils.copyProperties(userProfileModify, userProfileInfo, userProfileModify.getIgnores());
         
         // 연결된 유저를 변경하는 상황은 없을것이라고 간주.
@@ -101,7 +111,7 @@ public class UserProfileManagerImpl implements UserProfileManager {
 //            logger.info("[modifyUserProfile] set UserInfo done");
 //        }
         
-        UserProfileInfo savedUserProfileInfo = userProfileDao.save(userProfileInfo);
+        UserProfileInfo savedUserProfileInfo = userProfileDao.saveAndFlush(userProfileInfo);
         logger.info("[modifyUserProfile] done: seqUserProfile = {}", savedUserProfileInfo.getSeqUserProfile());
         return convertTo(savedUserProfileInfo);
     }
@@ -116,7 +126,11 @@ public class UserProfileManagerImpl implements UserProfileManager {
     @Override
     public UserProfileVO findUserProfile(Long seqUserProfile) {
         logger.info("[findUserProfile] start: seqUserProfile = {}", seqUserProfile);
-        UserProfileInfo savedUserProfileInfo = userProfileDao.getById(seqUserProfile);
+        UserProfileInfo savedUserProfileInfo = userProfileDao.findById(seqUserProfile).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqUserProfile", seqUserProfile, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         logger.info("[findUserProfile] done: seqUserProfile = {}", seqUserProfile);
         return convertTo(savedUserProfileInfo);
     }
@@ -137,12 +151,13 @@ public class UserProfileManagerImpl implements UserProfileManager {
     @Override
     public UserProfileVO findUserProfile(String provider, String sid) {
         logger.info("[findUserProfile] start: provider = {} / sid = {}", provider, sid);
-        UserProfileInfo savedUserProfileInfo = userProfileDao.findByProviderAndSid(provider, sid).orElse(null);
+        UserProfileInfo savedUserProfileInfo = userProfileDao.findByProviderAndSid(provider, sid).orElseThrow(()->{
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("provider", provider, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
+            errorResp.addError("sid", sid, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
         logger.info("[findUserProfile] done: provider = {} / sid = {}", provider, sid);
-        if (savedUserProfileInfo == null) {
-            return null;
-        } else {
-            return convertTo(savedUserProfileInfo);
-        }
+        return convertTo(savedUserProfileInfo);
     }
 }

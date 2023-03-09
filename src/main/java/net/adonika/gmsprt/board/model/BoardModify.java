@@ -3,6 +3,12 @@ package net.adonika.gmsprt.board.model;
 import net.adonika.gmsprt.comm.model.CommModify;
 
 public class BoardModify extends CommModify {
+    
+    /*
+     * TODO 조건형 검증
+     * pwd가 null이 아닐 경우 형식 체크
+     * changePwd=true 일 경우 newPwd 형식 체크
+     */
 
     private String title;
 
@@ -52,7 +58,7 @@ public class BoardModify extends CommModify {
     }
 
     public void setPwd(String pwd) {
-        super.removeIgnores("pwd");
+        // super.removeIgnores("pwd");
         this.pwd = pwd;
     }
 

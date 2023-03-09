@@ -20,6 +20,8 @@ class GmsprtApplicationTests {
 
     @Test
     void checkMessageSource() {
+        String message_null = messageSource.getMessage("", null, Locale.getDefault());
+        Assertions.assertEquals(message_null, "");
         String message_en = messageSource.getMessage("exception.bad_request", null, Locale.US);
         logger.info(message_en);
         Assertions.assertEquals(message_en, "Bad Request.");

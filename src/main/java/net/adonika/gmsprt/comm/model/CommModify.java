@@ -23,7 +23,7 @@ public class CommModify {
         this.addIgnores(ObjectUtil.getFieldNames(c));
     }
 
-    protected void addIgnores(String... ignores) {
+    public void addIgnores(String... ignores) {
         if (ignores != null) {
             this.ignores.addAll(Arrays.asList(ignores));
         }

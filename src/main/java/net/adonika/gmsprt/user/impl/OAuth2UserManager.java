@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.security.model.OAuth2UserInfo;
 import net.adonika.gmsprt.security.model.OAuth2UserInfoFactory;
 import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
@@ -75,13 +76,9 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         /* <!-- //Get Principal --> */
 
         /* <!-- Save User --> */
-        UserProfileVO savedUserProfile = userProfileManager.findUserProfile(provider, oAuth2UserInfo.getSid());
-        if (savedUserProfile == null) {
-            logger.info("신규회원, 저장 시도");
-            savedUserProfile = createUser(seqUser, provider, oAuth2UserInfo);
-            seqUser = savedUserProfile.getUser().getSeqUser();
-            logger.info("신규회원, 저장 완료: {}({}) -> {}", savedUserProfile.getName(), savedUserProfile.getSid(), savedUserProfile.getSeqUserProfile());
-        } else {
+        UserProfileVO savedUserProfile;
+        try {
+            savedUserProfile = userProfileManager.findUserProfile(provider, oAuth2UserInfo.getSid());
             logger.info("기존회원[{}], 저장 시도", seqUser);
             savedUserProfile = updateUser(seqUser, savedUserProfile.getSeqUserProfile(), oAuth2UserInfo);
             seqUser = savedUserProfile.getUser().getSeqUser();
@@ -92,6 +89,12 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
              */
             savedPrincipal = null;
             logger.info("기존회원, 저장 완료: {}({}) -> {}", savedUserProfile.getName(), savedUserProfile.getSid(), savedUserProfile.getSeqUserProfile());
+        } catch (ErrorResp errorResp) {
+            // TODO NotFoundException 혹은 return null 이 좀더 명확해 보인다. 고민해보자.
+            logger.info("신규회원, 저장 시도");
+            savedUserProfile = createUser(seqUser, provider, oAuth2UserInfo);
+            seqUser = savedUserProfile.getUser().getSeqUser();
+            logger.info("신규회원, 저장 완료: {}({}) -> {}", savedUserProfile.getName(), savedUserProfile.getSid(), savedUserProfile.getSeqUserProfile());
         }
         /* <!-- //Save User --> */
 
