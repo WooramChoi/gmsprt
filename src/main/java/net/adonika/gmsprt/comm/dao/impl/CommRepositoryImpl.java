@@ -1,6 +1,5 @@
-package net.adonika.gmsprt.comm.impl;
+package net.adonika.gmsprt.comm.dao.impl;
 
-import net.adonika.gmsprt.comm.CommRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -9,6 +8,8 @@ import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
+
+import net.adonika.gmsprt.comm.dao.CommRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

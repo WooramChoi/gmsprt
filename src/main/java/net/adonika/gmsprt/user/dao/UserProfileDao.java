@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
-import net.adonika.gmsprt.comm.CommRepository;
+import net.adonika.gmsprt.comm.dao.CommRepository;
 import net.adonika.gmsprt.domain.UserProfileInfo;
 
 @Repository

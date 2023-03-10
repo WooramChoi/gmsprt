@@ -1,12 +1,13 @@
 package net.adonika.gmsprt.comm;
 
-import net.adonika.gmsprt.comm.model.CommForm;
-import net.adonika.gmsprt.util.DateUtil;
+import java.text.ParseException;
+import java.util.Date;
+
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import java.text.ParseException;
-import java.util.Date;
+import net.adonika.gmsprt.comm.model.CommForm;
+import net.adonika.gmsprt.util.DateUtil;
 
 public class CommSpecificationBuilder {
 
@@ -25,8 +26,7 @@ public class CommSpecificationBuilder {
             if (StringUtils.hasText(searchForm.getTxtDtFrom())) {
                 try {
                     Date dtFrom = DateUtil.stringToDate(searchForm.getTxtDtFrom() + "000000", "yyyyMMddHHmmss");
-                    spec = addSpecification(c,
-                            Operation.AND,
+                    spec = addSpecification(Operation.AND,
                             spec,
                             commSpecification.from(c, searchForm.getSelDtKind(), dtFrom));
                 } catch (ParseException e) {
@@ -37,8 +37,7 @@ public class CommSpecificationBuilder {
             if (StringUtils.hasText(searchForm.getTxtDtTo())) {
                 try {
                     Date dtTo = DateUtil.stringToDate(searchForm.getTxtDtTo() + "000000", "yyyyMMddHHmmss");
-                    spec = addSpecification(c,
-                            Operation.AND,
+                    spec = addSpecification(Operation.AND,
                             spec,
                             commSpecification.to(c, searchForm.getSelDtKind(), dtTo));
                 } catch (ParseException e) {
@@ -51,15 +50,13 @@ public class CommSpecificationBuilder {
         if (StringUtils.hasText(searchForm.getSelSection())) {
             // 범위 - From
             if (StringUtils.hasText(searchForm.getTxtSectionFrom())) {
-                spec = addSpecification(c,
-                        Operation.AND,
+                spec = addSpecification(Operation.AND,
                         spec,
                         commSpecification.from(c, searchForm.getSelSection(), searchForm.getTxtSectionFrom()));
             }
             // 범위 - To
             if (StringUtils.hasText(searchForm.getTxtSectionTo())) {
-                spec = addSpecification(c,
-                        Operation.AND,
+                spec = addSpecification(Operation.AND,
                         spec,
                         commSpecification.to(c, searchForm.getSelSection(), searchForm.getTxtSectionTo()));
             }
@@ -67,8 +64,7 @@ public class CommSpecificationBuilder {
 
         // 상세 검색
         if (StringUtils.hasText(searchForm.getSelDetail())) {
-            spec = addSpecification(c,
-                    Operation.AND,
+            spec = addSpecification(Operation.AND,
                     spec,
                     commSpecification.like(c, searchForm.getSelDetail(), searchForm.getTxtDetail()));
         }
@@ -76,7 +72,7 @@ public class CommSpecificationBuilder {
         return spec;
     }
 
-    protected <T> Specification<T> addSpecification(Class<T> c, Operation operation, Specification<T> origin, Specification<T> spec) {
+    protected <T> Specification<T> addSpecification(Operation operation, Specification<T> origin, Specification<T> spec) {
         if (origin == null) {
             return Specification.where(spec);
         } else {

@@ -9,6 +9,7 @@ public class BoardVO extends CommVO {
     private Long seqBoard;
     private String title;
     private String content;
+    private Boolean use;
     private String name;
 
     private UserVO user;
@@ -60,6 +61,14 @@ public class BoardVO extends CommVO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getUse() {
+        return use;
+    }
+
+    public void setUse(Boolean use) {
+        this.use = use;
     }
 
     public UserVO getUser() {

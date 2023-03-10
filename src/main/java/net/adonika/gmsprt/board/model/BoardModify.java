@@ -13,6 +13,8 @@ public class BoardModify extends CommModify {
     private String title;
 
     private String content;
+    
+    private Boolean use;
 
     private String name;
 
@@ -42,6 +44,15 @@ public class BoardModify extends CommModify {
     public void setContent(String content) {
         super.removeIgnores("content");
         this.content = content;
+    }
+
+    public Boolean getUse() {
+        return use;
+    }
+
+    public void setUse(Boolean use) {
+        super.removeIgnores("use");
+        this.use = use;
     }
 
     public String getName() {

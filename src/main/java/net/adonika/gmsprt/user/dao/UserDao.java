@@ -1,6 +1,6 @@
 package net.adonika.gmsprt.user.dao;
 
-import net.adonika.gmsprt.comm.CommRepository;
+import net.adonika.gmsprt.comm.dao.CommRepository;
 import net.adonika.gmsprt.domain.UserInfo;
 import org.springframework.stereotype.Repository;
 

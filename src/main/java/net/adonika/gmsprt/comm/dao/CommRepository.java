@@ -1,4 +1,4 @@
-package net.adonika.gmsprt.comm;
+package net.adonika.gmsprt.comm.dao;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -15,13 +15,18 @@ public class BoardInfo extends CommInfo {
 
     @Column(name = "CONTENT", length = 5000)
     private String content;
+    
+    @Column(name = "USE", columnDefinition = "boolean default true")
+    private Boolean use = true;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserInfo.class)
     @JoinColumn(name = "SEQ_USER")
     private UserInfo userInfo;
 
+    @Column(length = 50)
     private String name;
 
+    @Column(length = 255)
     private String pwd;
 
     public Long getSeqBoard() {
@@ -46,6 +51,14 @@ public class BoardInfo extends CommInfo {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Boolean getUse() {
+        return use;
+    }
+
+    public void setUse(Boolean use) {
+        this.use = use;
     }
 
     public UserInfo getUserInfo() {

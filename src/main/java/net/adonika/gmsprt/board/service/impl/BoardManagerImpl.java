@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import net.adonika.gmsprt.board.BoardSpecificationBuilder;
 import net.adonika.gmsprt.board.dao.BoardDao;
 import net.adonika.gmsprt.board.model.BoardAdd;
 import net.adonika.gmsprt.board.model.BoardForm;
 import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardSpecificationBuilder;
 import net.adonika.gmsprt.board.model.BoardVO;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.domain.BoardInfo;

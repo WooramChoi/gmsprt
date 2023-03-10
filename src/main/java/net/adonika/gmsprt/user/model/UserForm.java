@@ -1,5 +1,7 @@
 package net.adonika.gmsprt.user.model;
 
-public class UserForm {
+import net.adonika.gmsprt.comm.model.CommForm;
+
+public class UserForm extends CommForm {
 
 }

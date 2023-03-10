@@ -6,6 +6,7 @@ public class BoardForm extends CommForm {
 
     private String name;
     private String toc; // title + content
+    private Boolean use;
 
     public String getName() {
         return name;
@@ -21,5 +22,13 @@ public class BoardForm extends CommForm {
 
     public void setToc(String toc) {
         this.toc = toc;
+    }
+
+    public Boolean getUse() {
+        return use;
+    }
+
+    public void setUse(Boolean use) {
+        this.use = use;
     }
 }

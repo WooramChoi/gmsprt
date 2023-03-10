@@ -17,7 +17,7 @@ public class UserInfo extends CommInfo {
     @Column(length = 50)
     private String name;
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String email;
 
     @Column(length = 100)
