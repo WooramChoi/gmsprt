@@ -1,23 +1,23 @@
 package net.adonika.gmsprt.board.model;
 
+import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
+
 import javax.validation.constraints.NotBlank;
 
 public class BoardAdd {
     
-    /*
-     * TODO 조건형 검증
-     * pwd가 null이 아닐 경우 형식 체크
-     */
-
     @NotBlank
     private String title;
 
-    //@NotBlank(message = "{validation.board.test}") // messageSource 에 접근 가능
     @NotBlank
     private String content;
 
+    private Long seqUser;
+
+    @NullOrNotBlank
     private String name;
 
+    @NullOrNotBlank
     private String pwd;
 
     public String getTitle() {
@@ -34,6 +34,14 @@ public class BoardAdd {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getSeqUser() {
+        return seqUser;
+    }
+
+    public void setSeqUser(Long seqUser) {
+        this.seqUser = seqUser;
     }
 
     public String getName() {

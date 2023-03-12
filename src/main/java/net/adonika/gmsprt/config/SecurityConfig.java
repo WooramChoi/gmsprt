@@ -18,7 +18,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf()
                     //.ignoringAntMatchers("/h2-console/**")  // For h2-console
-                    .disable()
+                    .disable()  // For RestAPI
                 .headers()
                     .addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)) // For h2-console
                     .and()

@@ -44,9 +44,6 @@ public class UserProfileManagerImpl implements UserProfileManager {
         logger.debug("[convertTo] userProfileInfo to UserProfileVO start");
         UserProfileVO instance = new UserProfileVO();
         
-        /*
-         * TODO Entity 객체 내에 "userInfo" 라고 필드명을 정의해야하는 상황
-         */
         BeanUtils.copyProperties(userProfileInfo, instance, "userInfo");
         logger.debug("[convertTo] copy userProfileInfo to UserProfileVO done: {}", ObjectUtil.toJson(instance));
         
@@ -55,13 +52,9 @@ public class UserProfileManagerImpl implements UserProfileManager {
             logger.debug("[convertTo] userProfileInfo has UserInfo: seqUser = {}", userInfo.getSeqUser());
             
             try {
-                /*
-                 * TODO VO 객체 내에 "user" 라고 필드명을 정의해야 userInfo 에 연결되는 상황
-                 */
                 ObjectUtil.copyToField(instance, "user", userInfo);
                 logger.debug("[convertTo] copy userInfo to \"user\" done: {}", ObjectUtil.toJson(instance));
             } catch (NoSuchFieldException e) {
-                // TODO Auto-generated catch block
                 logger.error("[convertTo] UserProfileVO hasn't field of \"user\"");
             }
         }
@@ -71,11 +64,12 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
     @Transactional
     @Override
-    public UserProfileVO addUserProfile(UserProfileAdd userProfileAdd, Long seqUser) {
+    public UserProfileVO addUserProfile(UserProfileAdd userProfileAdd) {
         logger.info("[addUserProfile] start");
         UserProfileInfo userProfileInfo = new UserProfileInfo();
         BeanUtils.copyProperties(userProfileAdd, userProfileInfo);
-        
+
+        Long seqUser = userProfileAdd.getSeqUser();
         if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
             logger.info("[addUserProfile] has UserInfo: seqUser = {}", seqUser);
             UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
@@ -94,22 +88,14 @@ public class UserProfileManagerImpl implements UserProfileManager {
 
     @Transactional
     @Override
-    public UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify, Long seqUser) {
-        logger.info("[modifyUserProfile] start: seqUserProfile = {} / seqUser = {}", seqUserProfile, seqUser);
+    public UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify) {
+        logger.info("[modifyUserProfile] start: seqUserProfile = {}", seqUserProfile);
         UserProfileInfo userProfileInfo = userProfileDao.findById(seqUserProfile).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
             errorResp.addError("seqUserProfile", seqUserProfile, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
             return errorResp;
         });
         BeanUtils.copyProperties(userProfileModify, userProfileInfo, userProfileModify.getIgnores());
-        
-        // 연결된 유저를 변경하는 상황은 없을것이라고 간주.
-//        if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
-//            logger.info("[modifyUserProfile] has UserInfo: seqUser = {}", seqUser);
-//            UserInfo userInfo = userDao.getById(seqUser);
-//            userProfileInfo.setUserInfo(userInfo);
-//            logger.info("[modifyUserProfile] set UserInfo done");
-//        }
         
         UserProfileInfo savedUserProfileInfo = userProfileDao.saveAndFlush(userProfileInfo);
         logger.info("[modifyUserProfile] done: seqUserProfile = {}", savedUserProfileInfo.getSeqUserProfile());

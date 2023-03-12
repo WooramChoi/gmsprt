@@ -15,11 +15,11 @@ public class ObjectUtil {
 
     /**
      * Class 내의 멤버변수들의 이름을 반환한다.
-     * @param c
-     * @return
+     * @param clazz - 대상 Class
+     * @return String[] - 멤버변수명
      */
-    public static String[] getFieldNames(Class<?> c) {
-        Field[] declaredFields = c.getDeclaredFields();
+    public static String[] getFieldNames(Class<?> clazz) {
+        Field[] declaredFields = clazz.getDeclaredFields();
         int length = declaredFields.length;
         String[] fieldNames = new String[declaredFields.length];
         for (int i = 0; i<length; i++) {
@@ -31,8 +31,8 @@ public class ObjectUtil {
     /**
      * 로깅용 임시 메서드
      * TODO slf4j 에 설정해서 toString 으로 사용해야한다.
-     * @param obj
-     * @return
+     * @param obj - 대상 Object
+     * @return String - JSON 문자열
      */
     public static String toJson(Object obj) {
         String msg;
@@ -48,11 +48,10 @@ public class ObjectUtil {
     
     /**
      * target 에서 fieldName 에 해당하는 field 를 찾아 source 의 내용을 복사한다.
-     * @param target
-     * @param fieldName
-     * @param source
-     * @throws NoSuchFieldException
-     *          fieldName 에 해당하는 field 를 찾지 못함
+     * @param target - 대상 Object
+     * @param fieldName - source 를 붙여넣고 싶은 target 내의 Field 이름
+     * @param source - target 내의 Field 에 붙여넣고 싶은 source
+     * @throws NoSuchFieldException - fieldName 에 해당하는 field 를 찾지 못함
      */
     public static void copyToField(Object target, String fieldName, Object source) throws NoSuchFieldException {
         try {

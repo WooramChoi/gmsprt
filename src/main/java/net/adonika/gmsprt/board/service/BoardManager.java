@@ -12,9 +12,9 @@ import net.adonika.gmsprt.board.model.BoardVO;
 
 public interface BoardManager {
     
-    BoardVO addBoard(BoardAdd boardAdd, Long seqUser);
+    BoardVO addBoard(BoardAdd boardAdd);
     
-    BoardVO modifyBoard(Long seqBoard, BoardModify boardModify, Long seqUser);
+    BoardVO modifyBoard(Long seqBoard, BoardModify boardModify);
     
     void removeBoard(Long seqBoard);
     

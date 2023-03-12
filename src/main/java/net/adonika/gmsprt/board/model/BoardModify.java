@@ -1,27 +1,29 @@
 package net.adonika.gmsprt.board.model;
 
 import net.adonika.gmsprt.comm.model.CommModify;
+import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
 
+//@NotNullAtLeastOne(targets = {"seqUser", "pwd"}, message = "{validation.board.not_null_user_or_pwd}")
 public class BoardModify extends CommModify {
     
-    /*
-     * TODO 조건형 검증
-     * pwd가 null이 아닐 경우 형식 체크
-     * changePwd=true 일 경우 newPwd 형식 체크
-     */
-
+    @NullOrNotBlank
     private String title;
 
+    @NullOrNotBlank
     private String content;
-    
+
+    @NullOrNotBlank
     private Boolean use;
 
+    private Long seqUser;
+
+    @NullOrNotBlank
     private String name;
 
+    @NullOrNotBlank
     private String pwd;
-    
-    private boolean changePwd;
-    
+
+    @NullOrNotBlank
     private String newPwd;
     
     public BoardModify() {
@@ -33,7 +35,7 @@ public class BoardModify extends CommModify {
     }
 
     public void setTitle(String title) {
-        super.removeIgnores("title");
+        super.setChanges("title");
         this.title = title;
     }
 
@@ -42,7 +44,7 @@ public class BoardModify extends CommModify {
     }
 
     public void setContent(String content) {
-        super.removeIgnores("content");
+        super.setChanges("content");
         this.content = content;
     }
 
@@ -51,8 +53,17 @@ public class BoardModify extends CommModify {
     }
 
     public void setUse(Boolean use) {
-        super.removeIgnores("use");
+        super.setChanges("use");
         this.use = use;
+    }
+
+    public Long getSeqUser() {
+        return seqUser;
+    }
+
+    public void setSeqUser(Long seqUser) {
+        // super.setChanges("seqUser");
+        this.seqUser = seqUser;
     }
 
     public String getName() {
@@ -60,7 +71,7 @@ public class BoardModify extends CommModify {
     }
 
     public void setName(String name) {
-        super.removeIgnores("name");
+        super.setChanges("name");
         this.name = name;
     }
 
@@ -71,14 +82,6 @@ public class BoardModify extends CommModify {
     public void setPwd(String pwd) {
         // super.removeIgnores("pwd");
         this.pwd = pwd;
-    }
-
-    public boolean isChangePwd() {
-        return changePwd;
-    }
-
-    public void setChangePwd(boolean changePwd) {
-        this.changePwd = changePwd;
     }
 
     public String getNewPwd() {

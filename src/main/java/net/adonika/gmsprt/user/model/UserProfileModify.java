@@ -11,7 +11,7 @@ public class UserProfileModify extends CommModify {
     private String email;
 
     private String urlPicture;
-    
+
     public UserProfileModify() {
         super.initIgnores(this.getClass());
     }
@@ -21,7 +21,7 @@ public class UserProfileModify extends CommModify {
     }
 
     public void setUid(String uid) {
-        super.removeIgnores("uid");
+        super.setChanges("uid");
         this.uid = uid;
     }
 
@@ -30,7 +30,7 @@ public class UserProfileModify extends CommModify {
     }
 
     public void setName(String name) {
-        super.removeIgnores("name");
+        super.setChanges("name");
         this.name = name;
     }
 
@@ -39,7 +39,7 @@ public class UserProfileModify extends CommModify {
     }
 
     public void setEmail(String email) {
-        super.removeIgnores("email");
+        super.setChanges("email");
         this.email = email;
     }
 
@@ -48,7 +48,7 @@ public class UserProfileModify extends CommModify {
     }
 
     public void setUrlPicture(String urlPicture) {
-        super.removeIgnores("urlPicture");
+        super.setChanges("urlPicture");
         this.urlPicture = urlPicture;
     }
 }

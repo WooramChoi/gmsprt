@@ -19,7 +19,7 @@ public class UserModify extends CommModify{
     }
 
     public void setName(String name) {
-        super.removeIgnores("name");
+        super.setChanges("name");
         this.name = name;
     }
 
@@ -28,7 +28,7 @@ public class UserModify extends CommModify{
     }
 
     public void setEmail(String email) {
-        super.removeIgnores("email");
+        super.setChanges("email");
         this.email = email;
     }
 
@@ -37,7 +37,7 @@ public class UserModify extends CommModify{
     }
 
     public void setUrlPicture(String urlPicture) {
-        super.removeIgnores("urlPicture");
+        super.setChanges("urlPicture");
         this.urlPicture = urlPicture;
     }
 }

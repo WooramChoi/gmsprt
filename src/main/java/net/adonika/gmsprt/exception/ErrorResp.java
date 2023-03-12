@@ -19,10 +19,10 @@ public class ErrorResp extends RuntimeException {
         this.errors = new ArrayList<>();
     }
     
-    private class FieldError {
-        private String field;
-        private Object value;
-        private String reason;
+    private static class FieldError {
+        private final String field;
+        private final Object value;
+        private final String reason;
 
         public FieldError(String field, Object value, String reason) {
             this.field = field;
@@ -68,8 +68,7 @@ public class ErrorResp extends RuntimeException {
     }
 
     public static ErrorResp getInstance(HttpStatus status, String message) {
-        ErrorResp errorResp = new ErrorResp(status, message);
-        return errorResp;
+        return new ErrorResp(status, message);
     }
 
     public void addError(String field, Object value, String reason) {

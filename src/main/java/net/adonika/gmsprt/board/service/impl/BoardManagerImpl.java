@@ -65,9 +65,6 @@ public class BoardManagerImpl implements BoardManager {
         }
         logger.debug("[convertTo] get new instance of {} done", c.getSimpleName());
 
-        /*
-         * TODO Entity 객체 내에 "userInfo" 라고 필드명을 정의해야하는 상황
-         */
         BeanUtils.copyProperties(boardInfo, instance, "userInfo");
         logger.debug("[convertTo] copy boardInfo to {} done: {}", c.getSimpleName(), ObjectUtil.toJson(instance));
 
@@ -76,9 +73,6 @@ public class BoardManagerImpl implements BoardManager {
             logger.debug("[convertTo] boardInfo has UserInfo: seqUser = {}", userInfo.getSeqUser());
             
             try {
-                /*
-                 * TODO VO 객체 내에 "user" 라고 필드명을 정의해야 userInfo 에 연결되는 상황
-                 */
                 ObjectUtil.copyToField(instance, "user", userInfo);
                 logger.debug("[convertTo] copy userInfo to \"user\" done: {}", ObjectUtil.toJson(instance));
             } catch (NoSuchFieldException e) {
@@ -91,11 +85,12 @@ public class BoardManagerImpl implements BoardManager {
     
     @Transactional
     @Override
-    public BoardVO addBoard(BoardAdd boardAdd, Long seqUser) {
+    public BoardVO addBoard(BoardAdd boardAdd) {
         logger.info("[addBoard] start");
         BoardInfo boardInfo = new BoardInfo();
         BeanUtils.copyProperties(boardAdd, boardInfo);
-        
+
+        Long seqUser = boardAdd.getSeqUser();
         if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
             logger.info("[addBoard] has UserInfo: seqUser = {}", seqUser);
             UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
@@ -121,21 +116,26 @@ public class BoardManagerImpl implements BoardManager {
 
     @Transactional
     @Override
-    public BoardVO modifyBoard(Long seqBoard, BoardModify boardModify, Long seqUser) {
-        logger.info("[modifyBoard] start: seqBoard = {} / seqUser = {}", seqBoard, seqUser);
+    public BoardVO modifyBoard(Long seqBoard, BoardModify boardModify) {
+        logger.info("[modifyBoard] start: seqBoard = {}", seqBoard);
         BoardInfo boardInfo = boardDao.findById(seqBoard).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
             errorResp.addError("seqBoard", seqBoard, messageSource.getMessage("validation.board.not_found", null, Locale.getDefault()));
             return errorResp;
         });
-        
-        // TODO 비즈니스 로직이 Service 에 존재해도 괜찮은가?
-        // 일단 비밀번호가 VO 객체에 존재하지 않길 바라서 이런 모양이 됨.
+
+        /*
+            NOTE 권한에 관하여.
+            Authentication 에 관련된 내용은 Controller 에 작성했으면 좋겠지만,
+            Password 가 Service 밖으로 나가지 않았으면하기에 이곳에 작성.
+            boolean canModifyBoard(seqBoard, seqUser, pwd) throws AuthenticationException 서비스를 추가하는 것도 괜찮은 방법 같다.
+         */
         logger.info("[modifyBoard] check authorization");
+        Long seqUser = boardModify.getSeqUser();
         if (boardInfo.getUserInfo() != null) {
             logger.info("[modifyBoard] check by owner");
             logger.debug("[modifyBoard] owner = {} / accessor = {}", boardInfo.getUserInfo().getSeqUser(), seqUser);
-            if (boardInfo.getUserInfo().getSeqUser() != seqUser) {
+            if (!boardInfo.getUserInfo().getSeqUser().equals(seqUser)) {
                 ErrorResp errorResp = ErrorResp.getForbidden();
                 errorResp.addError("seqUser", seqUser, messageSource.getMessage("validation.board.not_owner", null, Locale.getDefault()));
                 throw errorResp;
@@ -148,7 +148,6 @@ public class BoardManagerImpl implements BoardManager {
                     errorResp.addError("pwd", null, messageSource.getMessage("validation.pwd.not_null", null, Locale.getDefault()));
                     throw errorResp;
                 } else {
-                    logger.debug("[modifyBoard] owner pwd = {} / accessor pwd = {}", boardInfo.getPwd(), "Unknown");
                     if (!passwordEncoder.matches(boardModify.getPwd(), boardInfo.getPwd())) {
                         ErrorResp errorResp = ErrorResp.getForbidden();
                         errorResp.addError("pwd", null, messageSource.getMessage("validation.pwd.incorrent", null, Locale.getDefault()));
@@ -160,16 +159,8 @@ public class BoardManagerImpl implements BoardManager {
         logger.info("[modifyBoard] check authorization done");
         
         BeanUtils.copyProperties(boardModify, boardInfo, boardModify.getIgnores());
-        
-        // 글의 작성자를 변경하는 상황은 없을것이라고 간주. 급할경우 DB를 변경해야할것
-//        if (Optional.ofNullable(seqUser).orElse(0L) > 0L) {
-//            logger.info("[modifyBoard] has UserInfo: seqUser = {}", seqUser);
-//            UserInfo userInfo = userDao.getById(seqUser);
-//            boardInfo.setUserInfo(userInfo);
-//            logger.info("[modifyBoard] set UserInfo done");
-//        }
-        
-        if (boardModify.isChangePwd()) {
+
+        if (boardModify.getNewPwd() != null) {
             logger.info("[modifyBoard] change pwd");
             if (!StringUtils.hasText(boardModify.getNewPwd())) {
                 boardInfo.setPwd(null);

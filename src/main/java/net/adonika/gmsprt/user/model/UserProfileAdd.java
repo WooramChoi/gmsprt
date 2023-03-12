@@ -20,6 +20,8 @@ public class UserProfileAdd {
 
     private String urlPicture;
 
+    private Long seqUser;
+
     public String getProvider() {
         return provider;
     }
@@ -68,4 +70,11 @@ public class UserProfileAdd {
         this.urlPicture = urlPicture;
     }
 
+    public Long getSeqUser() {
+        return seqUser;
+    }
+
+    public void setSeqUser(Long seqUser) {
+        this.seqUser = seqUser;
+    }
 }

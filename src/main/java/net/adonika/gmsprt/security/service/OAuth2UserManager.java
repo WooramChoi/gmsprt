@@ -1,7 +1,13 @@
-package net.adonika.gmsprt.user.impl;
+package net.adonika.gmsprt.security.service;
 
-import java.util.Map;
-
+import net.adonika.gmsprt.exception.ErrorResp;
+import net.adonika.gmsprt.security.model.OAuth2UserInfo;
+import net.adonika.gmsprt.security.model.OAuth2UserInfoFactory;
+import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.UserProfileManager;
+import net.adonika.gmsprt.user.model.*;
+import net.adonika.gmsprt.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -11,18 +17,6 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
-import net.adonika.gmsprt.exception.ErrorResp;
-import net.adonika.gmsprt.security.model.OAuth2UserInfo;
-import net.adonika.gmsprt.security.model.OAuth2UserInfoFactory;
-import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
-import net.adonika.gmsprt.user.UserManager;
-import net.adonika.gmsprt.user.UserProfileManager;
-import net.adonika.gmsprt.user.model.UserAdd;
-import net.adonika.gmsprt.user.model.UserProfileAdd;
-import net.adonika.gmsprt.user.model.UserProfileModify;
-import net.adonika.gmsprt.user.model.UserProfileVO;
-import net.adonika.gmsprt.user.model.UserVO;
 
 @Service
 public class OAuth2UserManager extends DefaultOAuth2UserService {
@@ -43,6 +37,20 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         return processOAuth2User(userRequest, oAuth2User);
     }
 
+    public OAuth2UserPrincipal getOAuth2UserPrincipal() {
+        OAuth2UserPrincipal savedPrincipal = null;
+
+        // TODO SecurityContextHolder 외에 Authentication 을 가져올 방법이 없을까?
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            Object principal = authentication.getPrincipal();
+            if (principal != null && principal.getClass() == OAuth2UserPrincipal.class) {
+                savedPrincipal = (OAuth2UserPrincipal) principal;
+            }
+        }
+        return savedPrincipal;
+    }
+
     private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) {
 
         String provider = oAuth2UserRequest.getClientRegistration().getRegistrationId();
@@ -52,26 +60,14 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         logger.info("- {}({})", oAuth2UserInfo.getName(), oAuth2UserInfo.getSid());
 
         /* <!-- DEBUG --> */
-        logger.debug("## Start Attributes");
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        for (String key : attributes.keySet()) {
-            logger.debug("- {} : {}", key, attributes.get(key));
-        }
-        logger.debug("## End Attributes");
+        logger.debug("## Attrbutes: {}", ObjectUtil.toJson(oAuth2User.getAttributes()));
         /* <!-- //DEBUG --> */
 
         /* <!-- Get Principal --> */
-        OAuth2UserPrincipal savedPrincipal = null;
+        OAuth2UserPrincipal savedPrincipal = getOAuth2UserPrincipal();
         Long seqUser = null;
-
-        // TODO SecurityContextHolder 외에 Authentication 을 가져올 방법이 없을까?
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            Object principal = authentication.getPrincipal();
-            if (principal != null && principal.getClass() == OAuth2UserPrincipal.class) {
-                savedPrincipal = (OAuth2UserPrincipal) principal;
-                seqUser = savedPrincipal.getSeqUser();
-            }
+        if (savedPrincipal != null) {
+            seqUser = savedPrincipal.getSeqUser();
         }
         /* <!-- //Get Principal --> */
 
@@ -80,7 +76,7 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         try {
             savedUserProfile = userProfileManager.findUserProfile(provider, oAuth2UserInfo.getSid());
             logger.info("기존회원[{}], 저장 시도", seqUser);
-            savedUserProfile = updateUser(seqUser, savedUserProfile.getSeqUserProfile(), oAuth2UserInfo);
+            savedUserProfile = updateUser(savedUserProfile.getSeqUserProfile(), oAuth2UserInfo);
             seqUser = savedUserProfile.getUser().getSeqUser();
             /*
                 TODO 조회된 UserProfile.UserInfo.seqUser 와 Principal.seqUser 를 비교해야한다
@@ -137,17 +133,19 @@ public class OAuth2UserManager extends DefaultOAuth2UserService {
         userProfileAdd.setName(oAuth2UserInfo.getName());
         userProfileAdd.setEmail(oAuth2UserInfo.getEmail());
         userProfileAdd.setUrlPicture(oAuth2UserInfo.getUrlPicture());
-        return userProfileManager.addUserProfile(userProfileAdd, savedUser.getSeqUser());
+
+        userProfileAdd.setSeqUser(savedUser.getSeqUser());
+        return userProfileManager.addUserProfile(userProfileAdd);
     }
 
-    private UserProfileVO updateUser(Long seqUser, Long seqUserProfile, OAuth2UserInfo oAuth2UserInfo) {
+    private UserProfileVO updateUser(Long seqUserProfile, OAuth2UserInfo oAuth2UserInfo) {
         
         UserProfileModify userProfileModify = new UserProfileModify();
         userProfileModify.setName(oAuth2UserInfo.getName());
         userProfileModify.setEmail(oAuth2UserInfo.getEmail());
         userProfileModify.setUrlPicture(oAuth2UserInfo.getUrlPicture());
 
-        return userProfileManager.modifyUserProfile(seqUserProfile, userProfileModify, seqUser);
+        return userProfileManager.modifyUserProfile(seqUserProfile, userProfileModify);
     }
 
 }

@@ -1,6 +1,8 @@
 package net.adonika.gmsprt.domain;
 
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -13,13 +15,35 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class CommInfo {
 
+    @CreatedBy
+    private Long seqCreate;
+
+    @LastModifiedBy
+    private Long seqUpdate;
+
     @CreatedDate
     @Column(nullable=false, updatable = false)
-    private Date dtCreate = null;
+    private Date dtCreate;
 
     @LastModifiedDate
     @Column(nullable=false)
-    private Date dtUpdate = null;
+    private Date dtUpdate;
+
+    public Long getSeqCreate() {
+        return seqCreate;
+    }
+
+    public void setSeqCreate(Long seqCreate) {
+        this.seqCreate = seqCreate;
+    }
+
+    public Long getSeqUpdate() {
+        return seqUpdate;
+    }
+
+    public void setSeqUpdate(Long seqUpdate) {
+        this.seqUpdate = seqUpdate;
+    }
 
     public Date getDtCreate() {
         return dtCreate;

@@ -8,31 +8,31 @@ import net.adonika.gmsprt.util.ObjectUtil;
 
 public class CommModify {
     
-    private List<String> ignores;
+    private final List<String> ignores;
     
     public CommModify () {
         this.ignores = new ArrayList<>();
     }
 
     public String[] getIgnores() {
-        return this.ignores.toArray(new String[this.ignores.size()]);
+        return this.ignores.toArray(new String[0]);
     }
     
     protected void initIgnores(Class<? extends CommModify> c) {
         this.ignores.clear();
-        this.addIgnores(ObjectUtil.getFieldNames(c));
+        this.setIgnores(ObjectUtil.getFieldNames(c));
     }
 
-    public void addIgnores(String... ignores) {
+    public void setIgnores(String... ignores) {
         if (ignores != null) {
             this.ignores.addAll(Arrays.asList(ignores));
         }
     }
     
-    protected void removeIgnores(String... ignores) {
+    protected void setChanges(String... ignores) {
         if (ignores != null) {
             this.ignores.removeAll(Arrays.asList(ignores));
         }
     }
-    
+
 }

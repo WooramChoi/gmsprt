@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,19 +26,19 @@ import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
 
 @RestController
 @RequestMapping(value = {"/boards"})
-public class BoardApiController {
+public class BoardRestController {
     
-    private final Logger logger = LoggerFactory.getLogger(BoardApiController.class);
+    private final Logger logger = LoggerFactory.getLogger(BoardRestController.class);
 
     private final BoardManager boardManager;
 
-    public BoardApiController(BoardManager boardManager) {
+    public BoardRestController(BoardManager boardManager) {
         this.boardManager = boardManager;
     }
 
     @PostMapping(value = {""})
     public ResponseEntity<BoardVO> boardAdd(
-            @RequestBody @Valid BoardAdd boardApp,
+            @RequestBody @Valid BoardAdd boardAdd,
             @AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal
     ) {
         
@@ -47,8 +48,9 @@ public class BoardApiController {
         } else {
             seqUser = null;
         }
-        
-        return ResponseEntity.ok(boardManager.addBoard(boardApp, seqUser));
+        boardAdd.setSeqUser(seqUser);
+
+        return ResponseEntity.ok(boardManager.addBoard(boardAdd));
     }
 
     @GetMapping(value = {"/{seqBoard}"})
@@ -58,7 +60,7 @@ public class BoardApiController {
     
     // Controller 는 무조건 Pageable 로 하자
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<Page<BoardVO>> boardList(BoardForm boardForm, Pageable pageable) {
+    public ResponseEntity<Page<BoardVO>> boardList(BoardForm boardForm, @PageableDefault() Pageable pageable) {
         return ResponseEntity.ok(boardManager.findBoard(boardForm, pageable));
     }
     
@@ -75,7 +77,8 @@ public class BoardApiController {
         } else {
             seqUser = null;
         }
+        boardModify.setSeqUser(seqUser);
         
-        return ResponseEntity.ok(boardManager.modifyBoard(seqBoard, boardModify, seqUser));
+        return ResponseEntity.ok(boardManager.modifyBoard(seqBoard, boardModify));
     }
 }

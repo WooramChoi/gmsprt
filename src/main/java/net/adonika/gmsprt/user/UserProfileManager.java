@@ -12,9 +12,9 @@ import net.adonika.gmsprt.user.model.UserProfileVO;
 
 public interface UserProfileManager {
     
-    UserProfileVO addUserProfile(UserProfileAdd userProfileAdd, Long seqUser);
+    UserProfileVO addUserProfile(UserProfileAdd userProfileAdd);
     
-    UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify, Long seqUser);
+    UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify);
     
     void removeUserProfile(Long seqUserProfile);
     

@@ -31,7 +31,7 @@ public class UserManagerTests {
         return userAdd;
     }
 
-    private UserProfileAdd getUserProfileAdd(String provider, String sid, String uid, String name, String email, String urlPicture) {
+    private UserProfileAdd getUserProfileAdd(String provider, String sid, String uid, String name, String email, String urlPicture, Long seqUser) {
         UserProfileAdd userProfileAdd = new UserProfileAdd();
         userProfileAdd.setProvider(provider);
         userProfileAdd.setSid(sid);
@@ -40,6 +40,8 @@ public class UserManagerTests {
         userProfileAdd.setName(name);
         userProfileAdd.setEmail(email);
         userProfileAdd.setUrlPicture(urlPicture);
+
+        userProfileAdd.setSeqUser(seqUser);
         return userProfileAdd;
     }
 
@@ -55,8 +57,7 @@ public class UserManagerTests {
 
         UserProfileVO savedUserProfile = userProfileManager.addUserProfile(getUserProfileAdd(
                         "google", "102693227186529279417", "102693227186529279417",
-                        savedUser.getName(), savedUser.getEmail(), savedUser.getUrlPicture()),
-                savedUser.getSeqUser()
+                        savedUser.getName(), savedUser.getEmail(), savedUser.getUrlPicture(), savedUser.getSeqUser())
         );
 
         Assertions.assertNotNull(savedUserProfile.getSeqUserProfile());

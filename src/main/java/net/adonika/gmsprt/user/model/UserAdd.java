@@ -1,5 +1,6 @@
 package net.adonika.gmsprt.user.model;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 public class UserAdd {
@@ -7,7 +8,7 @@ public class UserAdd {
     @NotBlank
     private String name;
     
-    @NotBlank
+    @Email
     private String email;
     
     private String urlPicture;
