@@ -1,21 +1,23 @@
 package net.adonika.gmsprt.security;
 
-import net.adonika.gmsprt.security.model.OAuth2UserPrincipal;
-import net.adonika.gmsprt.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import net.adonika.gmsprt.security.model.AuthTokenAuthentication;
+import net.adonika.gmsprt.security.service.AuthTokenManager;
+import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.UserProfileManager;
+import net.adonika.gmsprt.user.model.UserAdd;
+import net.adonika.gmsprt.user.model.UserProfileModify;
+import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.user.model.UserVO;
 
 /*
     NOTE SecurityController 지만, 메인 인증방식(oAuth2)에 종속된 내용이 많다.
@@ -25,67 +27,59 @@ import java.util.Map;
 public class SecurityRestController {
 
     private final Logger logger = LoggerFactory.getLogger(SecurityRestController.class);
-
-    private final OAuth2AuthorizedClientService clientService;
-
-    public SecurityRestController(OAuth2AuthorizedClientService clientService) {
-        this.clientService = clientService;
+    
+    private final AuthTokenManager authTokenManager;
+    private final UserManager userManager;
+    private final UserProfileManager userProfileManager;
+    
+    public SecurityRestController(AuthTokenManager authTokenManager,
+            UserManager userManager,
+            UserProfileManager userProfileManager) {
+        
+        this.authTokenManager = authTokenManager;
+        this.userManager = userManager;
+        this.userProfileManager = userProfileManager;
     }
 
-    @GetMapping(value = {"", "/"})
-    public ResponseEntity<OAuth2UserPrincipal> authenticatedPrincipalDetails(@AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal) {
-        return ResponseEntity.ok(oAuth2UserPrincipal);
-    }
-
-    @GetMapping(value = {"/providers", "/providers/"})
-    public ResponseEntity<List<String>> providerList(@AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal) {
-        return ResponseEntity.ok(oAuth2UserPrincipal.getProviders());
-    }
-
-    @GetMapping(value = {"/providers/{provider}"})
-    public ResponseEntity<Map<String, Object>> providerDetails(@PathVariable String provider, @AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal) {
-
-        logger.info("find provider: {}", provider);
-        String activeProvider = oAuth2UserPrincipal.getActiveProvider();
-        List<String> providers = oAuth2UserPrincipal.getProviders();
-        if (!providers.contains(provider)) {
-            logger.info("not found [{}] / response active provider [{}]", provider, activeProvider);
-            provider = activeProvider;
+//    @GetMapping(value = {"", "/"})
+//    public ResponseEntity<OAuth2UserPrincipal> authenticatedPrincipalD Retails(@AuthenticationPrincipal AuthenticationPrincipal oAuth2UserPrincipal) {
+//        return ResponseEntity.ok(oAuth2UserPrincipal);
+//    }
+    
+    
+    @GetMapping(value = {"/login"})
+    public ResponseEntity<UserProfileVO> login() {
+        
+        AuthTokenAuthentication authentication = (AuthTokenAuthentication) SecurityContextHolder.getContext().getAuthentication();
+        
+        UserProfileVO userProfileVO;
+        if (!authentication.isAuthenticated()) {
+            // NOTE saveAuthToken 은 Optional.of 로 반환하기때문에 null 일 수 없음.
+            UserVO userVO;
+            UserProfileVO savedUserProfile = authTokenManager.saveAuthToken(authentication.getDetails()).orElse(null);
+            if (savedUserProfile.getUser() != null) {
+                // NOTE userProfile 의 정보로 user 를 덮어씌우고 싶으면 구현. 일단 별도로 관리하고싶으니까 구현하지 않는다.
+                userProfileVO = savedUserProfile;
+            } else {
+                
+                UserAdd userAdd = new UserAdd();
+                userAdd.setName(savedUserProfile.getName());
+                userAdd.setEmail(savedUserProfile.getEmail());
+                userAdd.setUrlPicture(savedUserProfile.getUrlPicture());
+                
+                userVO = userManager.addUser(userAdd);
+                
+                UserProfileModify userProfileModify = new UserProfileModify();
+                userProfileModify.setSeqUser(userVO.getSeqUser());
+                
+                userProfileVO = userProfileManager.modifyUserProfile(savedUserProfile.getSeqUserProfile(), userProfileModify);
+            }
+        } else {
+            userProfileVO = authentication.getPrincipal();
         }
-
-        oAuth2UserPrincipal.setActiveProvider(provider);
-        HashMap<String, Object> providerDetail = new HashMap<>();
-        providerDetail.put("name", oAuth2UserPrincipal.getName(provider));
-        providerDetail.put("attributes", oAuth2UserPrincipal.getAttributes());
-        providerDetail.put("authorities", oAuth2UserPrincipal.getAuthorities());
-
-        oAuth2UserPrincipal.setActiveProvider(activeProvider);
-        return ResponseEntity.ok(providerDetail);
+        
+        return ResponseEntity.ok(userProfileVO);
     }
+    
 
-    @GetMapping(value = {"/providers/{provider}/client"})
-    public ResponseEntity<OAuth2AuthorizedClient> authorizedClientDetails(@PathVariable String provider, @AuthenticationPrincipal OAuth2UserPrincipal oAuth2UserPrincipal) {
-
-        logger.info("find provider: {}", provider);
-        String activeProvider = oAuth2UserPrincipal.getActiveProvider();
-        List<String> providers = oAuth2UserPrincipal.getProviders();
-        if (!providers.contains(provider)) {
-            logger.info("not found [{}] / response active provider [{}]", provider, activeProvider);
-            provider = activeProvider;
-        }
-
-        /*
-            TODO OAuth2AuthorizedClientService 수동 등록 하기
-            디폴트로 InMemoryOAuth2AuthorizedClientService, InMemoryClientRegistrationRepository
-            가 등록되어있음에도, loadAuthorizedClient 에서 조회가 안됨.
-            당장 client 를 써서 조회해야하는건 아니지만, 문제 해결은 필요해 보인다.
-         */
-        String name = oAuth2UserPrincipal.getName(provider);
-        logger.debug("find client: [{}] {} at {}", provider, name, clientService.getClass());
-        OAuth2AuthorizedClient authorizedClient = clientService.loadAuthorizedClient(provider, name);
-
-        logger.debug("authorizedClient: {}", ObjectUtil.toJson(authorizedClient));
-
-        return ResponseEntity.ok(authorizedClient);
-    }
 }

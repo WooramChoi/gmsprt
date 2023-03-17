@@ -11,6 +11,8 @@ public class UserProfileModify extends CommModify {
     private String email;
 
     private String urlPicture;
+    
+    private Long seqUser;
 
     public UserProfileModify() {
         super.initIgnores(this.getClass());
@@ -50,5 +52,14 @@ public class UserProfileModify extends CommModify {
     public void setUrlPicture(String urlPicture) {
         super.setChanges("urlPicture");
         this.urlPicture = urlPicture;
+    }
+
+    public Long getSeqUser() {
+        return seqUser;
+    }
+
+    public void setSeqUser(Long seqUser) {
+        super.setChanges("seqUser");
+        this.seqUser = seqUser;
     }
 }

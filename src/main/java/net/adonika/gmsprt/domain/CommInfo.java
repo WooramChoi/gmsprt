@@ -16,6 +16,7 @@ import java.util.Date;
 public class CommInfo {
 
     @CreatedBy
+    @Column(updatable = false)
     private Long seqCreate;
 
     @LastModifiedBy
