@@ -1,5 +1,6 @@
 package net.adonika.gmsprt.user.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -11,5 +12,7 @@ import net.adonika.gmsprt.domain.UserProfileInfo;
 public interface UserProfileDao extends CommRepository<UserProfileInfo, Long> {
 
     Optional<UserProfileInfo> findByProviderAndSid(String provider, String sid);
+
+    List<UserProfileInfo> findByUserInfo_SeqUser(Long seqUser);
 
 }

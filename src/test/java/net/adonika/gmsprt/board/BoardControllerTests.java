@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.service.UserManager;
 
 @SpringBootTest
 public class BoardControllerTests {

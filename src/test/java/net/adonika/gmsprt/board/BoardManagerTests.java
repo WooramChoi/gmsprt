@@ -5,7 +5,7 @@ import net.adonika.gmsprt.board.model.BoardForm;
 import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardVO;
 import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.user.model.UserAdd;
 import net.adonika.gmsprt.user.model.UserVO;
 import net.adonika.gmsprt.util.ObjectUtil;

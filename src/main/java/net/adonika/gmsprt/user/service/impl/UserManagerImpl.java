@@ -1,4 +1,4 @@
-package net.adonika.gmsprt.user.impl;
+package net.adonika.gmsprt.user.service.impl;
 
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.adonika.gmsprt.domain.UserInfo;
 import net.adonika.gmsprt.exception.ErrorResp;
-import net.adonika.gmsprt.user.UserManager;
+import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.model.UserAdd;
 import net.adonika.gmsprt.user.model.UserForm;

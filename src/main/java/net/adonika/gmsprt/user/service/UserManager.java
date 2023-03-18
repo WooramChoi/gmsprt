@@ -1,4 +1,4 @@
-package net.adonika.gmsprt.user;
+package net.adonika.gmsprt.user.service;
 
 import java.util.List;
 

@@ -1,5 +1,7 @@
 package net.adonika.gmsprt.user;
 
+import net.adonika.gmsprt.user.service.UserManager;
+import net.adonika.gmsprt.user.service.UserProfileManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -11,6 +13,8 @@ import net.adonika.gmsprt.user.model.UserAdd;
 import net.adonika.gmsprt.user.model.UserProfileAdd;
 import net.adonika.gmsprt.user.model.UserProfileVO;
 import net.adonika.gmsprt.user.model.UserVO;
+
+import java.util.List;
 
 @SpringBootTest
 public class UserManagerTests {
@@ -68,5 +72,8 @@ public class UserManagerTests {
 
         Assertions.assertNotNull(savedUser.getDtCreate());
         logger.info("dt_create: {}", savedUser.getDtCreate());
+
+        List<UserProfileVO> userProfile = userProfileManager.findUserProfile(savedUser.getSeqUser());
+        Assertions.assertFalse(userProfile.isEmpty());
     }
 }

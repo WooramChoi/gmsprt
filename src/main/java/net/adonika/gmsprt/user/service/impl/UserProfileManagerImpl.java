@@ -1,21 +1,4 @@
-package net.adonika.gmsprt.user.impl;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
+package net.adonika.gmsprt.user.service.impl;
 
 import net.adonika.gmsprt.domain.AuthTokenId;
 import net.adonika.gmsprt.domain.AuthTokenInfo;
@@ -24,16 +7,25 @@ import net.adonika.gmsprt.domain.UserProfileInfo;
 import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.security.dao.AuthTokenDao;
 import net.adonika.gmsprt.security.service.AuthTokenManager;
-import net.adonika.gmsprt.user.UserProfileManager;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.dao.UserProfileDao;
 import net.adonika.gmsprt.user.model.UserProfileAdd;
-import net.adonika.gmsprt.user.model.UserProfileForm;
 import net.adonika.gmsprt.user.model.UserProfileModify;
 import net.adonika.gmsprt.user.model.UserProfileVO;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.user.service.UserProfileManager;
 import net.adonika.gmsprt.util.DateUtil;
 import net.adonika.gmsprt.util.ObjectUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.*;
 
 @Service("userProfileManager")
 public class UserProfileManagerImpl implements UserProfileManager, AuthTokenManager {
@@ -143,43 +135,15 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
 
     @Transactional
     @Override
-    public UserProfileVO findUserProfile(Long seqUserProfile) {
-        logger.info("[findUserProfile] start: seqUserProfile = {}", seqUserProfile);
-        UserProfileInfo savedUserProfileInfo = userProfileDao.findById(seqUserProfile).orElseThrow(()->{
-            ErrorResp errorResp = ErrorResp.getNotFound();
-            errorResp.addError("seqUserProfile", seqUserProfile, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
-            return errorResp;
-        });
-        logger.info("[findUserProfile] done: seqUserProfile = {}", seqUserProfile);
-        return convertTo(savedUserProfileInfo);
+    public List<UserProfileVO> findUserProfile(Long seqUser) {
+        logger.info("[findUserProfile] start: seqUSer={}", seqUser);
+        List<UserProfileInfo> savedUserProfiles = userProfileDao.findByUserInfo_SeqUser(seqUser);
+        logger.info("[findUserProfile] done: savedUserProfiles[{}]", savedUserProfiles.size());
+        List<UserProfileVO> list = new ArrayList<>();
+        savedUserProfiles.forEach(userProfileInfo -> list.add(convertTo(userProfileInfo)));
+        return list;
     }
 
-    @Override
-    public List<UserProfileVO> findUserProfile(UserProfileForm userProfileForm) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Page<UserProfileVO> findUserProfile(UserProfileForm userProfileForm, Pageable pageable) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Transactional
-    @Override
-    public UserProfileVO findUserProfile(String provider, String sid) {
-        logger.info("[findUserProfile] start: provider = {} / sid = {}", provider, sid);
-        UserProfileInfo savedUserProfileInfo = userProfileDao.findByProviderAndSid(provider, sid).orElseThrow(()->{
-            ErrorResp errorResp = ErrorResp.getNotFound();
-            errorResp.addError("provider", provider, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
-            errorResp.addError("sid", sid, messageSource.getMessage("validation.user_profile.not_found", null, Locale.getDefault()));
-            return errorResp;
-        });
-        logger.info("[findUserProfile] done: provider = {} / sid = {}", provider, sid);
-        return convertTo(savedUserProfileInfo);
-    }
-    
     @Transactional
     @Override
     public Optional<UserProfileVO> saveAuthToken(AuthTokenId authTokenId) {
