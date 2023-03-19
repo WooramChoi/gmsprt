@@ -16,8 +16,8 @@ public class AuthTokenUserAuditorAware implements AuditorAware<Long> {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Long seqUser;
         try {
-            seqUser = NumberUtils.parseNumber(authentication.getName(), Long.class);
-        } catch(NullPointerException | NumberFormatException e) {
+            seqUser = NumberUtils.parseNumber(Optional.ofNullable(authentication.getName()).orElse("0"), Long.class);
+        } catch(IllegalArgumentException | NullPointerException e) {
             // don't mind!
             seqUser = null;
         }

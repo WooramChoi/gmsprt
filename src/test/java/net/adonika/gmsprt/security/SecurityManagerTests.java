@@ -24,11 +24,11 @@ public class SecurityManagerTests {
     @Test
     public void verifyGoogle() {
         
-        String accessToken = "ya29.a0AVvZVsp_b7l3gbE-gaTYCsMTCsM8UhpAz0cmBT9uO2hBOS5S5i_9IyyKHD2z4DHZj4nr0WyczD5bpsn3ltcTpW0TrINTZNfAECql02bgNk4H_X5PTYgIqVhefWwF3KxjV2d9zYY158VDdaI34widzboBjXBs3gaCgYKAVcSARESFQGbdwaIoKLQOORR_YvDajL5tonqaA0165";
+        String accessToken = "ya29.a0AVvZVsobxhxuqKNJMpfyfOofCcOBrm0o22x1Lw4srjwzs-GFym0b_g4OEi8RAJHdFz4f-ZkLAVgVVECsbwip9cwNKNRpR6E6eC5A71_7erFh2BDI3C88OxHioQmbwbplUIQ82gbSRXbpUm-NpDqlPom6wOmeaCgYKAcMSARESFQGbdwaIcuwxfWyeMYGKmDSpMH38nw0163";
         
         String response = googleApiClient.get()
         .uri(uriBuilder -> uriBuilder
-                .path("/oauth2/v1/userinfo")
+                .path("/oauth2/v3/userinfo")
                 .queryParam("alt", "json")
                 .build())
         .headers(httpHeaders -> {

@@ -163,25 +163,15 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
         }
         
         // WebClient 를 통해 AccessToken 을 이용 사용자 정보 조회
+        // TODO 가능하면 함수로 분리할 것
         logger.info("[saveAuthToken] get [{}] user info by api", registrationId);
         ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>(){};
         String sid, uid, name, email, urlPicture;
         if ("google".equals(registrationId)) {
-            /*
-             * {
-             *    "id": "102693227186529279417",
-             *    "email": "dnfka4042@gmail.com",
-             *    "verified_email": true,
-             *    "name": "Wooram Choi",
-             *    "given_name": "Wooram",
-             *    "family_name": "Choi",
-             *    "picture": "https://lh3.googleusercontent.com/a/AGNmyxbXwOPSeOLpGz-dZr4RiQxYkpGEKkMxfACRsQw7iA=s96-c",
-             *    "locale": "ko"
-             *  }
-             */
+
             Map<String, Object> attributes = googleApiClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/oauth2/v1/userinfo")
+                            .path("/oauth2/v3/userinfo")
                             .queryParam("alt", "json")
                             .build())
                     .headers(httpHeaders -> {
@@ -190,51 +180,20 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
                     .retrieve()
                     .bodyToMono(typeReference)
                     .block();
-            
-            sid = attributes.get("id").toString();
-            uid = attributes.get("id").toString();
-            name = attributes.get("name").toString();
-            email = attributes.get("email").toString();
-            urlPicture = attributes.get("picture").toString();
+
+            // NOTE 어차피 attributes 가 null 이면, throw 된 상황이다.
+            if (attributes == null) {
+                attributes = new HashMap<>();
+            }
+
+            sid = Objects.toString(attributes.get("sub"), null);
+            uid = Objects.toString(attributes.get("sub"), null);
+            name = Objects.toString(attributes.get("name"), null);
+            email = Objects.toString(attributes.get("email"), null);
+            urlPicture = Objects.toString(attributes.get("picture"), null);
             
         } else if ("github".equals(registrationId)) {
-            
-            /*
-             * {
-             *    "login": "WooramChoi",
-             *    "id": 42209000,
-             *    "node_id": "MDQ6VXNlcjQyMjA5MDAw",
-             *    "avatar_url": "https://avatars.githubusercontent.com/u/42209000?v=4",
-             *    "gravatar_id": "",
-             *    "url": "https://api.github.com/users/WooramChoi",
-             *    "html_url": "https://github.com/WooramChoi",
-             *    "followers_url": "https://api.github.com/users/WooramChoi/followers",
-             *    "following_url": "https://api.github.com/users/WooramChoi/following{/other_user}",
-             *    "gists_url": "https://api.github.com/users/WooramChoi/gists{/gist_id}",
-             *    "starred_url": "https://api.github.com/users/WooramChoi/starred{/owner}{/repo}",
-             *    "subscriptions_url": "https://api.github.com/users/WooramChoi/subscriptions",
-             *    "organizations_url": "https://api.github.com/users/WooramChoi/orgs",
-             *    "repos_url": "https://api.github.com/users/WooramChoi/repos",
-             *    "events_url": "https://api.github.com/users/WooramChoi/events{/privacy}",
-             *    "received_events_url": "https://api.github.com/users/WooramChoi/received_events",
-             *    "type": "User",
-             *    "site_admin": false,
-             *    "name": "Wooram, Choi",
-             *    "company": null,
-             *    "blog": "",
-             *    "location": null,
-             *    "email": "dnfka404@naver.com",
-             *    "hireable": null,
-             *    "bio": null,
-             *    "twitter_username": null,
-             *    "public_repos": 3,
-             *    "public_gists": 0,
-             *    "followers": 0,
-             *    "following": 0,
-             *    "created_at": "2018-08-08T12:21:28Z",
-             *    "updated_at": "2023-02-26T13:04:39Z"
-             *  }
-             */
+
             Map<String, Object> attributes = githubApiClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/user")
@@ -245,12 +204,24 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
                     .retrieve()
                     .bodyToMono(typeReference)
                     .block();
+
+            if (attributes == null) {
+                attributes = new HashMap<>();
+            }
             
-            sid = attributes.get("id").toString();
-            uid = attributes.get("login").toString();
-            name = attributes.get("name").toString();
-            email = attributes.get("email").toString();
-            urlPicture = attributes.get("avatar_url").toString();
+            sid = Objects.toString(attributes.get("id"), null);
+            uid = Objects.toString(attributes.get("login"), null);
+            name = Objects.toString(attributes.get("name"), null);
+            email = Objects.toString(attributes.get("email"), null);
+            urlPicture = Objects.toString(attributes.get("avatar_url"), null);
+
+        } else if ("kakao".equals(registrationId)) {
+
+            sid = null;
+            uid = null;
+            name = null;
+            email = null;
+            urlPicture = null;
             
         } else {
             
