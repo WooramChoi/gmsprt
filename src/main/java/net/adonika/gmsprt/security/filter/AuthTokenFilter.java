@@ -15,15 +15,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import net.adonika.gmsprt.security.model.AuthTokenAuthentication;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
+    
+    private final String HEADER_REGISTRATION_ID = "RegistrationId";
+    private final String HEADER_AUTHORIZATION = "Authorization";
+    private final String PREFIX_AUTHORIZATION = "Bearer ";
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-        String registrationId = request.getHeader("RegistrationId");
-        String accessToken = request.getHeader("AccessToken");
+        String registrationId = request.getHeader(HEADER_REGISTRATION_ID);
+        String accessToken = request.getHeader(HEADER_AUTHORIZATION);
         
         if (StringUtils.hasText(registrationId) && StringUtils.hasText(accessToken)) {
+            if (accessToken.toLowerCase().startsWith(PREFIX_AUTHORIZATION.toLowerCase())) {
+                accessToken = accessToken.substring(PREFIX_AUTHORIZATION.length());
+            }
             AuthTokenAuthentication authTokenPrincipal = new AuthTokenAuthentication(registrationId, accessToken);
             SecurityContext context = SecurityContextHolder.getContext();
             context.setAuthentication(authTokenPrincipal);
