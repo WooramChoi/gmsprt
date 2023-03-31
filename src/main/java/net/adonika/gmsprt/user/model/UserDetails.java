@@ -2,9 +2,9 @@ package net.adonika.gmsprt.user.model;
 
 import java.util.Objects;
 
-import net.adonika.gmsprt.comm.model.CommVO;
+import net.adonika.gmsprt.comm.model.CommDetails;
 
-public class UserVO extends CommVO {
+public class UserDetails extends CommDetails {
     private Long seqUser;
     private String name;
     private String email;
@@ -23,7 +23,7 @@ public class UserVO extends CommVO {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        UserVO other = (UserVO) obj;
+        UserDetails other = (UserDetails) obj;
         return Objects.equals(seqUser, other.seqUser);
     }
 

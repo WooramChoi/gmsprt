@@ -1,8 +1,8 @@
 package net.adonika.gmsprt.board.model;
 
-import net.adonika.gmsprt.comm.model.CommForm;
+import net.adonika.gmsprt.comm.model.CommSearch;
 
-public class BoardForm extends CommForm {
+public class BoardSearch extends CommSearch {
 
     private String name;
     private String toc; // title + content

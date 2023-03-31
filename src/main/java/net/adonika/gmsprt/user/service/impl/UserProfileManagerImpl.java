@@ -11,7 +11,7 @@ import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.dao.UserProfileDao;
 import net.adonika.gmsprt.user.model.UserProfileAdd;
 import net.adonika.gmsprt.user.model.UserProfileModify;
-import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.user.model.UserProfileDetails;
 import net.adonika.gmsprt.user.service.UserProfileManager;
 import net.adonika.gmsprt.util.DateUtil;
 import net.adonika.gmsprt.util.ObjectUtil;
@@ -55,12 +55,12 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
         this.githubApiClient = githubApiClient;
     }
     
-    private UserProfileVO convertTo(UserProfileInfo userProfileInfo) {
-        logger.debug("[convertTo] userProfileInfo to UserProfileVO start");
-        UserProfileVO instance = new UserProfileVO();
+    private UserProfileDetails convertTo(UserProfileInfo userProfileInfo) {
+        logger.debug("[convertTo] userProfileInfo to UserProfileDetails start");
+        UserProfileDetails instance = new UserProfileDetails();
         
         BeanUtils.copyProperties(userProfileInfo, instance, "userInfo");
-        logger.debug("[convertTo] copy userProfileInfo to UserProfileVO done: {}", ObjectUtil.toJson(instance));
+        logger.debug("[convertTo] copy userProfileInfo to UserProfileDetails done: {}", ObjectUtil.toJson(instance));
         
         UserInfo userInfo = userProfileInfo.getUserInfo();
         if (userInfo != null) {
@@ -70,7 +70,7 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
                 ObjectUtil.copyToField(instance, "user", userInfo);
                 logger.debug("[convertTo] copy userInfo to \"user\" done: {}", ObjectUtil.toJson(instance));
             } catch (NoSuchFieldException e) {
-                logger.error("[convertTo] UserProfileVO hasn't field of \"user\"");
+                logger.error("[convertTo] UserProfileDetails hasn't field of \"user\"");
             }
         }
         
@@ -79,7 +79,7 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
 
     @Transactional
     @Override
-    public UserProfileVO addUserProfile(UserProfileAdd userProfileAdd) {
+    public UserProfileDetails addUserProfile(UserProfileAdd userProfileAdd) {
         logger.info("[addUserProfile] start");
         UserProfileInfo userProfileInfo = new UserProfileInfo();
         BeanUtils.copyProperties(userProfileAdd, userProfileInfo);
@@ -103,7 +103,7 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
 
     @Transactional
     @Override
-    public UserProfileVO modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify) {
+    public UserProfileDetails modifyUserProfile(Long seqUserProfile, UserProfileModify userProfileModify) {
         logger.info("[modifyUserProfile] start: seqUserProfile = {}", seqUserProfile);
         UserProfileInfo userProfileInfo = userProfileDao.findById(seqUserProfile).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
@@ -135,18 +135,18 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
 
     @Transactional
     @Override
-    public List<UserProfileVO> findUserProfile(Long seqUser) {
+    public List<UserProfileDetails> findUserProfile(Long seqUser) {
         logger.info("[findUserProfile] start: seqUSer={}", seqUser);
         List<UserProfileInfo> savedUserProfiles = userProfileDao.findByUserInfo_SeqUser(seqUser);
         logger.info("[findUserProfile] done: savedUserProfiles[{}]", savedUserProfiles.size());
-        List<UserProfileVO> list = new ArrayList<>();
+        List<UserProfileDetails> list = new ArrayList<>();
         savedUserProfiles.forEach(userProfileInfo -> list.add(convertTo(userProfileInfo)));
         return list;
     }
 
     @Transactional
     @Override
-    public Optional<UserProfileVO> saveAuthToken(AuthTokenId authTokenId) {
+    public Optional<UserProfileDetails> saveAuthToken(AuthTokenId authTokenId) {
         logger.info("[saveAuthToken] start: authTokenId = {}", ObjectUtil.toJson(authTokenId));
         String registrationId = authTokenId.getRegistrationId();
         String accessToken = authTokenId.getAccessToken();
@@ -265,10 +265,10 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
 
     @Transactional
     @Override
-    public Optional<UserProfileVO> findUserProfile(AuthTokenId authTokenId) {
+    public Optional<UserProfileDetails> findUserProfile(AuthTokenId authTokenId) {
         logger.info("[findUserProfile] start: authTokenId = {}", ObjectUtil.toJson(authTokenId));
         
-        UserProfileVO userProfileVO;
+        UserProfileDetails userProfileDetails;
         UserProfileInfo savedUserProfileInfo;
         AuthTokenInfo authTokenInfo = authTokenDao.findById(authTokenId).orElse(null);
         if (authTokenInfo != null) {
@@ -280,13 +280,13 @@ public class UserProfileManagerImpl implements UserProfileManager, AuthTokenMana
         logger.info("[findUserProfile] finded? {}", savedUserProfileInfo != null);
         
         if (savedUserProfileInfo != null) {
-            userProfileVO = convertTo(savedUserProfileInfo);
+            userProfileDetails = convertTo(savedUserProfileInfo);
         } else {
-            userProfileVO = null;
+            userProfileDetails = null;
         }
         
         logger.info("[findUserProfile] done: authTokenId = {}", ObjectUtil.toJson(authTokenId));
-        return Optional.ofNullable(userProfileVO);
+        return Optional.ofNullable(userProfileDetails);
     }
 
     @Override

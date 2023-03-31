@@ -20,9 +20,9 @@ import org.springframework.util.StringUtils;
 import net.adonika.gmsprt.board.BoardSpecificationBuilder;
 import net.adonika.gmsprt.board.dao.BoardDao;
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.model.BoardDetails;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.domain.BoardInfo;
 import net.adonika.gmsprt.domain.UserInfo;
@@ -85,7 +85,7 @@ public class BoardManagerImpl implements BoardManager {
     
     @Transactional
     @Override
-    public BoardVO addBoard(BoardAdd boardAdd) {
+    public BoardDetails addBoard(BoardAdd boardAdd) {
         logger.info("[addBoard] start");
         BoardInfo boardInfo = new BoardInfo();
         BeanUtils.copyProperties(boardAdd, boardInfo);
@@ -111,12 +111,12 @@ public class BoardManagerImpl implements BoardManager {
         
         BoardInfo savedBoardInfo = boardDao.save(boardInfo);
         logger.info("[addBoard] done: seqBoard = {}", savedBoardInfo.getSeqBoard());
-        return convertTo(savedBoardInfo, BoardVO.class);
+        return convertTo(savedBoardInfo, BoardDetails.class);
     }
 
     @Transactional
     @Override
-    public BoardVO modifyBoard(Long seqBoard, BoardModify boardModify) {
+    public BoardDetails modifyBoard(Long seqBoard, BoardModify boardModify) {
         logger.info("[modifyBoard] start: seqBoard = {}", seqBoard);
         BoardInfo boardInfo = boardDao.findById(seqBoard).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
@@ -173,7 +173,7 @@ public class BoardManagerImpl implements BoardManager {
         
         BoardInfo savedBoardInfo = boardDao.saveAndFlush(boardInfo);
         logger.info("[modifyBoard] done: seqBoard = {}", savedBoardInfo.getSeqBoard());
-        return convertTo(savedBoardInfo, BoardVO.class);
+        return convertTo(savedBoardInfo, BoardDetails.class);
     }
 
     @Transactional
@@ -186,9 +186,9 @@ public class BoardManagerImpl implements BoardManager {
 
     @Transactional
     @Override
-    public void removeBoard(BoardForm boardForm) {
-        logger.info("[removeBoard] start: boardForm = {}", ObjectUtil.toJson(boardForm));
-        List<BoardInfo> list = boardDao.findAll(new BoardSpecificationBuilder(boardForm).build());
+    public void removeBoard(BoardSearch boardSearch) {
+        logger.info("[removeBoard] start: boardSearch = {}", ObjectUtil.toJson(boardSearch));
+        List<BoardInfo> list = boardDao.findAll(new BoardSpecificationBuilder(boardSearch).build());
         // for log
         Long[] ids = new Long[list.size()];
         for (int i = 0; i < list.size(); i++) {
@@ -200,7 +200,7 @@ public class BoardManagerImpl implements BoardManager {
 
     @Transactional
     @Override
-    public BoardVO findBoard(Long seqBoard) {
+    public BoardDetails findBoard(Long seqBoard) {
         logger.info("[findBoard] start: seqBoard = {}", seqBoard);
         BoardInfo savedBoardInfo = boardDao.findById(seqBoard).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
@@ -208,26 +208,26 @@ public class BoardManagerImpl implements BoardManager {
             return errorResp;
         });
         logger.info("[findBoard] done: seqBoard = {}", seqBoard);
-        return convertTo(savedBoardInfo, BoardVO.class);
+        return convertTo(savedBoardInfo, BoardDetails.class);
     }
 
     @Transactional
     @Override
-    public List<BoardVO> findBoard(BoardForm boardForm) {
-        logger.info("[findBoard] start: boardForm = {}", ObjectUtil.toJson(boardForm));
-        List<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardForm).build());
+    public List<BoardDetails> findBoard(BoardSearch boardSearch) {
+        logger.info("[findBoard] start: boardSearch = {}", ObjectUtil.toJson(boardSearch));
+        List<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardSearch).build());
         logger.info("[findBoard] done: savedBoardInfos[{}]", savedBoardInfos.size());
-        List<BoardVO> list = new ArrayList<>();
-        savedBoardInfos.forEach(boardInfo->list.add(convertTo(boardInfo, BoardVO.class)));
+        List<BoardDetails> list = new ArrayList<>();
+        savedBoardInfos.forEach(boardInfo->list.add(convertTo(boardInfo, BoardDetails.class)));
         return list;
     }
 
     @Transactional
     @Override
-    public Page<BoardVO> findBoard(BoardForm boardForm, Pageable pageable) {
-        logger.info("[findBoard] start: boardForm = {} / pageable = {}", ObjectUtil.toJson(boardForm), ObjectUtil.toJson(pageable));
-        Page<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardForm).build(), pageable);
+    public Page<BoardDetails> findBoard(BoardSearch boardSearch, Pageable pageable) {
+        logger.info("[findBoard] start: boardSearch = {} / pageable = {}", ObjectUtil.toJson(boardSearch), ObjectUtil.toJson(pageable));
+        Page<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardSearch).build(), pageable);
         logger.info("[findBoard] done: savedBoardInfos[{}]", savedBoardInfos.getSize());
-        return savedBoardInfos.map(boardInfo->convertTo(boardInfo, BoardVO.class));
+        return savedBoardInfos.map(boardInfo->convertTo(boardInfo, BoardDetails.class));
     }
 }

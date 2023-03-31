@@ -1,6 +1,6 @@
 package net.adonika.gmsprt.comm.model;
 
-public class CommForm {
+public class CommSearch {
 
     // 날짜 검색
     private String selDtKind;

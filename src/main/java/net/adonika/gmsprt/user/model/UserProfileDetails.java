@@ -2,9 +2,9 @@ package net.adonika.gmsprt.user.model;
 
 import java.util.Objects;
 
-import net.adonika.gmsprt.comm.model.CommVO;
+import net.adonika.gmsprt.comm.model.CommDetails;
 
-public class UserProfileVO extends CommVO {
+public class UserProfileDetails extends CommDetails {
     private Long seqUserProfile;
     private String provider;
     private String sid;
@@ -13,7 +13,7 @@ public class UserProfileVO extends CommVO {
     private String email;
     private String urlPicture;
     
-    private UserVO user;
+    private UserDetails user;
 
     @Override
     public int hashCode() {
@@ -28,7 +28,7 @@ public class UserProfileVO extends CommVO {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        UserProfileVO other = (UserProfileVO) obj;
+        UserProfileDetails other = (UserProfileDetails) obj;
         return Objects.equals(seqUserProfile, other.seqUserProfile);
     }
 
@@ -88,11 +88,11 @@ public class UserProfileVO extends CommVO {
         this.urlPicture = urlPicture;
     }
 
-    public UserVO getUser() {
+    public UserDetails getUser() {
         return user;
     }
 
-    public void setUser(UserVO user) {
+    public void setUser(UserDetails user) {
         this.user = user;
     }
     

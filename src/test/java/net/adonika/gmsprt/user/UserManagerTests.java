@@ -11,8 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import net.adonika.gmsprt.user.model.UserAdd;
 import net.adonika.gmsprt.user.model.UserProfileAdd;
-import net.adonika.gmsprt.user.model.UserProfileVO;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.user.model.UserProfileDetails;
+import net.adonika.gmsprt.user.model.UserDetails;
 
 import java.util.List;
 
@@ -52,14 +52,14 @@ public class UserManagerTests {
     @Test
     void create() {
 
-        UserVO savedUser = userManager.addUser(getUserAdd(
+        UserDetails savedUser = userManager.addUser(getUserAdd(
                 "Wooram Choi", "dnfka4042@gmail.com",
                 "https://lh3.googleusercontent.com/a-/AOh14Ggq5xpJ7amOLyLtL_CXkfftVcFrdKNv_o-MBqF32w")
         );
         Assertions.assertNotNull(savedUser.getSeqUser());
         logger.info("Save User : {}", savedUser.getSeqUser());
 
-        UserProfileVO savedUserProfile = userProfileManager.addUserProfile(getUserProfileAdd(
+        UserProfileDetails savedUserProfile = userProfileManager.addUserProfile(getUserProfileAdd(
                         "google", "102693227186529279417", "102693227186529279417",
                         savedUser.getName(), savedUser.getEmail(), savedUser.getUrlPicture(), savedUser.getSeqUser())
         );
@@ -73,7 +73,7 @@ public class UserManagerTests {
         Assertions.assertNotNull(savedUser.getDtCreate());
         logger.info("dt_create: {}", savedUser.getDtCreate());
 
-        List<UserProfileVO> userProfile = userProfileManager.findUserProfile(savedUser.getSeqUser());
+        List<UserProfileDetails> userProfile = userProfileManager.findUserProfile(savedUser.getSeqUser());
         Assertions.assertFalse(userProfile.isEmpty());
     }
 }

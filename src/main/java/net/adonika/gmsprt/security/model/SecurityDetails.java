@@ -1,30 +1,30 @@
 package net.adonika.gmsprt.security.model;
 
-import net.adonika.gmsprt.user.model.UserProfileVO;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.user.model.UserProfileDetails;
+import net.adonika.gmsprt.user.model.UserDetails;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SecurityVO {
+public class SecurityDetails {
 
     private final Long seqUser;
     private final String name;
     private final String email;
     private final String urlPicture;
 
-    private final Map<String, SecurityProfileVO> profiles;
+    private final Map<String, SecurityProfileDetails> profiles;
 
-    public SecurityVO(UserVO userVO) {
-        this.seqUser = userVO.getSeqUser();
-        this.name = userVO.getName();
-        this.email = userVO.getEmail();
-        this.urlPicture = userVO.getUrlPicture();
+    public SecurityDetails(UserDetails userDetails) {
+        this.seqUser = userDetails.getSeqUser();
+        this.name = userDetails.getName();
+        this.email = userDetails.getEmail();
+        this.urlPicture = userDetails.getUrlPicture();
 
         this.profiles = new HashMap<>();
     }
 
-    private static class SecurityProfileVO {
+    private static class SecurityProfileDetails {
         private final Long seqUserProfile;
         private final String sid;
         private final String uid;
@@ -32,14 +32,14 @@ public class SecurityVO {
         private final String email;
         private final String urlPicture;
 
-        public SecurityProfileVO(UserProfileVO userProfileVO) {
+        public SecurityProfileDetails(UserProfileDetails userProfileDetails) {
 
-            this.seqUserProfile = userProfileVO.getSeqUserProfile();
-            this.sid = userProfileVO.getSid();
-            this.uid = userProfileVO.getUid();
-            this.name = userProfileVO.getName();
-            this.email = userProfileVO.getEmail();
-            this.urlPicture = userProfileVO.getUrlPicture();
+            this.seqUserProfile = userProfileDetails.getSeqUserProfile();
+            this.sid = userProfileDetails.getSid();
+            this.uid = userProfileDetails.getUid();
+            this.name = userProfileDetails.getName();
+            this.email = userProfileDetails.getEmail();
+            this.urlPicture = userProfileDetails.getUrlPicture();
         }
 
         public Long getSeqUserProfile() {
@@ -78,11 +78,11 @@ public class SecurityVO {
         return urlPicture;
     }
 
-    public Map<String, SecurityProfileVO> getProfiles() {
+    public Map<String, SecurityProfileDetails> getProfiles() {
         return profiles;
     }
 
-    public void putProfile(UserProfileVO userProfileVO) {
-        this.profiles.put(userProfileVO.getProvider(), new SecurityProfileVO(userProfileVO));
+    public void putProfile(UserProfileDetails userProfileDetails) {
+        this.profiles.put(userProfileDetails.getProvider(), new SecurityProfileDetails(userProfileDetails));
     }
 }

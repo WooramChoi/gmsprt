@@ -1,13 +1,13 @@
 package net.adonika.gmsprt.board;
 
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.model.BoardDetails;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.user.model.UserAdd;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.user.model.UserDetails;
 import net.adonika.gmsprt.util.ObjectUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -71,64 +71,64 @@ public class BoardManagerTests {
         /*
          * 01. Create
          */
-        UserVO savedUser01 = userManager.addUser(getUserAdd("aaa", "aaa@gmail.com", "https://"));
-        UserVO savedUser02 = userManager.addUser(getUserAdd("bbb", "bbb@gmail.com", "https://"));
-        UserVO savedUser03 = userManager.addUser(getUserAdd("ccc", "ccc@gmail.com", "https://"));
+        UserDetails savedUser01 = userManager.addUser(getUserAdd("aaa", "aaa@gmail.com", "https://"));
+        UserDetails savedUser02 = userManager.addUser(getUserAdd("bbb", "bbb@gmail.com", "https://"));
+        UserDetails savedUser03 = userManager.addUser(getUserAdd("ccc", "ccc@gmail.com", "https://"));
         
-        BoardVO boardVO01 = boardManager.addBoard(getBoardAdd("test01", "aaa01", savedUser01.getSeqUser(), null, null));
-        BoardVO boardVO02 = boardManager.addBoard(getBoardAdd("test02", "aaa02", savedUser01.getSeqUser(), null, null));
-        BoardVO boardVO03 = boardManager.addBoard(getBoardAdd("test03", "aaa03", savedUser01.getSeqUser(), null, null));
+        BoardDetails boardVO01 = boardManager.addBoard(getBoardAdd("test01", "aaa01", savedUser01.getSeqUser(), null, null));
+        BoardDetails boardVO02 = boardManager.addBoard(getBoardAdd("test02", "aaa02", savedUser01.getSeqUser(), null, null));
+        BoardDetails boardVO03 = boardManager.addBoard(getBoardAdd("test03", "aaa03", savedUser01.getSeqUser(), null, null));
         
-        BoardVO boardVO04 = boardManager.addBoard(getBoardAdd("test04", "bbb01", savedUser02.getSeqUser(), null, null));
-        BoardVO boardVO05 = boardManager.addBoard(getBoardAdd("test05", "bbb02", savedUser02.getSeqUser(), null, null));
-        BoardVO boardVO06 = boardManager.addBoard(getBoardAdd("test06", "bbb03", null, "bbb", "bbb01"));
+        BoardDetails boardVO04 = boardManager.addBoard(getBoardAdd("test04", "bbb01", savedUser02.getSeqUser(), null, null));
+        BoardDetails boardVO05 = boardManager.addBoard(getBoardAdd("test05", "bbb02", savedUser02.getSeqUser(), null, null));
+        BoardDetails boardVO06 = boardManager.addBoard(getBoardAdd("test06", "bbb03", null, "bbb", "bbb01"));
         
-        BoardVO boardVO07 = boardManager.addBoard(getBoardAdd("test07", "ccc01", savedUser03.getSeqUser(), null, null));
-        BoardVO boardVO08 = boardManager.addBoard(getBoardAdd("test08", "ccc02", null, "ccc", "ccc01"));
-        BoardVO boardVO09 = boardManager.addBoard(getBoardAdd("test09", "ccc03", null, "ccc", "ccc01"));
+        BoardDetails boardVO07 = boardManager.addBoard(getBoardAdd("test07", "ccc01", savedUser03.getSeqUser(), null, null));
+        BoardDetails boardVO08 = boardManager.addBoard(getBoardAdd("test08", "ccc02", null, "ccc", "ccc01"));
+        BoardDetails boardVO09 = boardManager.addBoard(getBoardAdd("test09", "ccc03", null, "ccc", "ccc01"));
         
-        BoardVO boardVO10 = boardManager.addBoard(getBoardAdd("test10", "ddd01", null, "ddd", "ddd01"));
-        BoardVO boardVO11 = boardManager.addBoard(getBoardAdd("test11", "ddd02", null, "ddd", "ddd01"));
-        BoardVO boardVO12 = boardManager.addBoard(getBoardAdd("test12", "ddd03", null, "ddd", "ddd01"));
+        BoardDetails boardVO10 = boardManager.addBoard(getBoardAdd("test10", "ddd01", null, "ddd", "ddd01"));
+        BoardDetails boardVO11 = boardManager.addBoard(getBoardAdd("test11", "ddd02", null, "ddd", "ddd01"));
+        BoardDetails boardVO12 = boardManager.addBoard(getBoardAdd("test12", "ddd03", null, "ddd", "ddd01"));
         
         /*
          * 02. Read
          */
-        BoardVO savedBoard = boardManager.findBoard(boardVO01.getSeqBoard());
+        BoardDetails savedBoard = boardManager.findBoard(boardVO01.getSeqBoard());
         Assertions.assertEquals(boardVO01.getUser().getSeqUser(), savedBoard.getUser().getSeqUser());
         Assertions.assertNotNull(savedBoard.getDtCreate());
 
-        BoardForm boardForm = new BoardForm();
-        List<BoardVO> list = boardManager.findBoard(boardForm);
+        BoardSearch boardSearch = new BoardSearch();
+        List<BoardDetails> list = boardManager.findBoard(boardSearch);
         Assertions.assertEquals(12, list.size());
         
         Pageable pageable = PageRequest.of(0, 5);
-        Page<BoardVO> pagedList = boardManager.findBoard(boardForm, pageable);
+        Page<BoardDetails> pagedList = boardManager.findBoard(boardSearch, pageable);
         Assertions.assertEquals(5, pagedList.getSize());
         
         /*
             select bi.* from board_info bi left outer join user_info ui on bi.seq_user = ui.seq_user
             where bi.name like '%{keyword}%' or ui.name like '%{keyword}%'
          */
-        boardForm.setName("bbb");
-        List<BoardVO> searchedList = boardManager.findBoard(boardForm);
+        boardSearch.setName("bbb");
+        List<BoardDetails> searchedList = boardManager.findBoard(boardSearch);
         Assertions.assertEquals(3, searchedList.size());
         
         /*
             select * from board_info
             where title like '%{keyword}%' or content like '%{keyword}%'
          */
-        boardForm.setName(null);
-        boardForm.setToc("02");
-        searchedList = boardManager.findBoard(boardForm);
+        boardSearch.setName(null);
+        boardSearch.setToc("02");
+        searchedList = boardManager.findBoard(boardSearch);
         Assertions.assertEquals(4, searchedList.size());
         
         /*
             select bi.* from board_info bi left outer join user_info ui on bi.seq_user = ui.seq_user
             where (bi.name like '%{keyword}%' or ui.name like '%{keyword}%') and (bi.title like '%{keyword}%' or bi.content like '%{keyword}%')
          */
-        boardForm.setName("ccc");
-        searchedList = boardManager.findBoard(boardForm);
+        boardSearch.setName("ccc");
+        searchedList = boardManager.findBoard(boardSearch);
         Assertions.assertEquals(1, searchedList.size());
         
         /*
@@ -150,7 +150,7 @@ public class BoardManagerTests {
         boardModify.setPwd("ccc01");
         boardModify.setNewPwd("ccc02");
         logger.debug("ignores: {}", ObjectUtil.toJson(boardModify.getIgnores()));
-        BoardVO modifiedBoard = boardManager.modifyBoard(boardVO08.getSeqBoard(), boardModify);
+        BoardDetails modifiedBoard = boardManager.modifyBoard(boardVO08.getSeqBoard(), boardModify);
         Assertions.assertEquals(boardModify.getTitle(), modifiedBoard.getTitle());
         Assertions.assertEquals(boardModify.getContent(), modifiedBoard.getContent());
         Assertions.assertNotNull(modifiedBoard.getDtUpdate());
@@ -169,9 +169,9 @@ public class BoardManagerTests {
         /*
          * 05. Delete by Query
          */
-        boardForm.setName(null);
-        boardManager.removeBoard(boardForm);
-        list = boardManager.findBoard(boardForm);
+        boardSearch.setName(null);
+        boardManager.removeBoard(boardSearch);
+        list = boardManager.findBoard(boardSearch);
         Assertions.assertEquals(0, list.size());
     }
 }

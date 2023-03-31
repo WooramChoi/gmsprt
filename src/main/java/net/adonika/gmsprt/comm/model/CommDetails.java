@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
 
-public class CommVO {
+public class CommDetails {
     private Long seqCreate;
     private Long seqUpdate;
     @JsonFormat(shape = JsonFormat.Shape.NUMBER)

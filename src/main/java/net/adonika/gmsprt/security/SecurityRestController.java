@@ -3,7 +3,7 @@ package net.adonika.gmsprt.security;
 import net.adonika.gmsprt.domain.AuthTokenId;
 import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.security.model.AuthTokenAuthentication;
-import net.adonika.gmsprt.security.model.SecurityVO;
+import net.adonika.gmsprt.security.model.SecurityDetails;
 import net.adonika.gmsprt.security.service.AuthTokenManager;
 import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.user.service.UserProfileManager;
@@ -37,62 +37,62 @@ public class SecurityRestController {
     }
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<SecurityVO> securityDetails() {
+    public ResponseEntity<SecurityDetails> securityDetails() {
 
         AuthTokenAuthentication authentication = (AuthTokenAuthentication) SecurityContextHolder.getContext().getAuthentication();
-        UserProfileVO userProfileVO = authentication.getPrincipal();
-        UserVO userVO = userProfileVO.getUser();
+        UserProfileDetails userProfileDetails = authentication.getPrincipal();
+        UserDetails userDetails = userProfileDetails.getUser();
 
-        // set securityVO
-        SecurityVO securityVO = new SecurityVO(userVO);
-        userProfileManager.findUserProfile(userVO.getSeqUser()).forEach(securityVO::putProfile);
+        // set securityDetails
+        SecurityDetails securityDetails = new SecurityDetails(userDetails);
+        userProfileManager.findUserProfile(userDetails.getSeqUser()).forEach(securityDetails::putProfile);
 
-        return ResponseEntity.ok(securityVO);
+        return ResponseEntity.ok(securityDetails);
     }
 
     /**
      * RegistrationId 와 AccessToken 을 사용하여 각 Provider 에게 사용자 정보를 확인, User 및 UserProfile 생성
      * 로그인 역할을 겸함
-     * @return UserProfileVO
+     * @return UserProfileDetails
      */
     @GetMapping(value = {"/login"})
-    public ResponseEntity<SecurityVO> login() {
+    public ResponseEntity<SecurityDetails> login() {
 
         /*
             NOTE @AuthenticationPrincipal 을 이용할 경우, Authentication.getPrincipal 이 끌려온다.
             그래서 SecurityContextHolder 를 이용하는 중인데... 다른 방법이 없을까?
          */
         AuthTokenAuthentication authentication = (AuthTokenAuthentication) SecurityContextHolder.getContext().getAuthentication();
-        UserProfileVO userProfileVO;
-        UserVO userVO;
+        UserProfileDetails userProfileDetails;
+        UserDetails userDetails;
 
         if (!authentication.isAuthenticated()) {
             // NOTE saveAuthToken 은 Optional.of 로 반환하기때문에 null 일 수 없음.
-            UserProfileVO savedUserProfile = authTokenManager.saveAuthToken(authentication.getDetails()).orElseThrow(ErrorResp::getInternalServerError);
-            userVO = savedUserProfile.getUser();
-            if (userVO == null) {
+            UserProfileDetails savedUserProfile = authTokenManager.saveAuthToken(authentication.getDetails()).orElseThrow(ErrorResp::getInternalServerError);
+            userDetails = savedUserProfile.getUser();
+            if (userDetails == null) {
 
                 // 신규 user 생성
                 UserAdd userAdd = new UserAdd();
                 userAdd.setName(savedUserProfile.getName());
                 userAdd.setEmail(savedUserProfile.getEmail());
                 userAdd.setUrlPicture(savedUserProfile.getUrlPicture());
-                userVO = userManager.addUser(userAdd);
+                userDetails = userManager.addUser(userAdd);
 
                 // userProfile 에 연결
                 UserProfileModify userProfileModify = new UserProfileModify();
-                userProfileModify.setSeqUser(userVO.getSeqUser());
-                userProfileVO = userProfileManager.modifyUserProfile(savedUserProfile.getSeqUserProfile(), userProfileModify);
+                userProfileModify.setSeqUser(userDetails.getSeqUser());
+                userProfileDetails = userProfileManager.modifyUserProfile(savedUserProfile.getSeqUserProfile(), userProfileModify);
             }
         } else {
-            userVO = authentication.getPrincipal().getUser();
+            userDetails = authentication.getPrincipal().getUser();
         }
 
-        // set securityVO
-        SecurityVO securityVO = new SecurityVO(userVO);
-        userProfileManager.findUserProfile(userVO.getSeqUser()).forEach(securityVO::putProfile);
+        // set securityDetails
+        SecurityDetails securityDetails = new SecurityDetails(userDetails);
+        userProfileManager.findUserProfile(userDetails.getSeqUser()).forEach(securityDetails::putProfile);
         
-        return ResponseEntity.ok(securityVO);
+        return ResponseEntity.ok(securityDetails);
     }
 
     /**
@@ -100,22 +100,22 @@ public class SecurityRestController {
      * NOTE 기존 userProfile 을 로그인된 user 에게 빼앗기는 문제가 발생할 수 있다
      * @param registrationId Provider
      * @param accessToken Access Token
-     * @return UserProfileVO
+     * @return UserProfileDetails
      */
     @PostMapping(value = {"/profiles"})
-    public ResponseEntity<UserProfileVO> userProfileAdd(@RequestParam String registrationId, @RequestParam String accessToken) {
+    public ResponseEntity<UserProfileDetails> userProfileAdd(@RequestParam String registrationId, @RequestParam String accessToken) {
 
         AuthTokenAuthentication authentication = (AuthTokenAuthentication) SecurityContextHolder.getContext().getAuthentication();
         Long seqUser = Long.valueOf(authentication.getName());
 
-        UserProfileVO savedUserProfile = authTokenManager.saveAuthToken(new AuthTokenId(registrationId, accessToken)).orElseThrow(ErrorResp::getInternalServerError);
+        UserProfileDetails savedUserProfile = authTokenManager.saveAuthToken(new AuthTokenId(registrationId, accessToken)).orElseThrow(ErrorResp::getInternalServerError);
 
         // userProfile 에 연결
         UserProfileModify userProfileModify = new UserProfileModify();
         userProfileModify.setSeqUser(seqUser);
-        UserProfileVO userProfileVO = userProfileManager.modifyUserProfile(savedUserProfile.getSeqUserProfile(), userProfileModify);
+        UserProfileDetails userProfileDetails = userProfileManager.modifyUserProfile(savedUserProfile.getSeqUserProfile(), userProfileModify);
 
-        return ResponseEntity.ok(userProfileVO);
+        return ResponseEntity.ok(userProfileDetails);
     }
 
 }

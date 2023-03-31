@@ -2,17 +2,17 @@ package net.adonika.gmsprt.board.model;
 
 import java.util.Objects;
 
-import net.adonika.gmsprt.comm.model.CommVO;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.comm.model.CommDetails;
+import net.adonika.gmsprt.user.model.UserDetails;
 
-public class BoardVO extends CommVO {
+public class BoardDetails extends CommDetails {
     private Long seqBoard;
     private String title;
     private String content;
     private Boolean use;
     private String name;
 
-    private UserVO user;
+    private UserDetails user;
     
     @Override
     public int hashCode() {
@@ -27,7 +27,7 @@ public class BoardVO extends CommVO {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        BoardVO other = (BoardVO) obj;
+        BoardDetails other = (BoardDetails) obj;
         return Objects.equals(seqBoard, other.seqBoard);
     }
 
@@ -71,11 +71,11 @@ public class BoardVO extends CommVO {
         this.use = use;
     }
 
-    public UserVO getUser() {
+    public UserDetails getUser() {
         return user;
     }
 
-    public void setUser(UserVO user) {
+    public void setUser(UserDetails user) {
         this.user = user;
     }
 }

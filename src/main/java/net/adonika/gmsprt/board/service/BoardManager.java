@@ -6,24 +6,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.model.BoardDetails;
 
 public interface BoardManager {
     
-    BoardVO addBoard(BoardAdd boardAdd);
+    BoardDetails addBoard(BoardAdd boardAdd);
     
-    BoardVO modifyBoard(Long seqBoard, BoardModify boardModify);
+    BoardDetails modifyBoard(Long seqBoard, BoardModify boardModify);
     
     void removeBoard(Long seqBoard);
     
-    BoardVO findBoard(Long seqBoard);
+    BoardDetails findBoard(Long seqBoard);
     
-    List<BoardVO> findBoard(BoardForm boardForm);
+    List<BoardDetails> findBoard(BoardSearch boardSearch);
     
-    Page<BoardVO> findBoard(BoardForm boardForm, Pageable pageable);
+    Page<BoardDetails> findBoard(BoardSearch boardSearch, Pageable pageable);
 
-    void removeBoard(BoardForm boardForm);
+    void removeBoard(BoardSearch boardSearch);
     
 }

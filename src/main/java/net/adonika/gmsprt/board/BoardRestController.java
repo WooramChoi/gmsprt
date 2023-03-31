@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardVO;
+import net.adonika.gmsprt.board.model.BoardDetails;
 import net.adonika.gmsprt.board.service.BoardManager;
 
 @RestController
@@ -35,46 +35,29 @@ public class BoardRestController {
     }
 
     @PostMapping(value = {""})
-    public ResponseEntity<BoardVO> boardAdd(
+    public ResponseEntity<BoardDetails> boardAdd(
             @RequestBody @Valid BoardAdd boardAdd
     ) {
-        
-        Long seqUser = null;
-//        if (oAuth2UserPrincipal != null) {
-//            seqUser = oAuth2UserPrincipal.getSeqUser();
-//        } else {
-//            seqUser = null;
-//        }
-        boardAdd.setSeqUser(seqUser);
-
         return ResponseEntity.ok(boardManager.addBoard(boardAdd));
     }
 
     @GetMapping(value = {"/{seqBoard}"})
-    public ResponseEntity<BoardVO> boardDetails(@PathVariable Long seqBoard) {
+    public ResponseEntity<BoardDetails> boardDetails(@PathVariable Long seqBoard) {
         return ResponseEntity.ok(boardManager.findBoard(seqBoard));
     }
     
-    // Controller 는 무조건 Pageable 로 하자
+    // NOTE Controller 는 무조건 Pageable 로 하자
+    // NOTE 게시글 내용을 리스트에 담는건 비효율적인것 같다. 응답이 너무 늦어질거 같으면 BoardList VO 객체를 만들도록 하자
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<Page<BoardVO>> boardList(BoardForm boardForm, @PageableDefault() Pageable pageable) {
-        return ResponseEntity.ok(boardManager.findBoard(boardForm, pageable));
+    public ResponseEntity<Page<BoardDetails>> boardList(BoardSearch boardSearch, @PageableDefault() Pageable pageable) {
+        return ResponseEntity.ok(boardManager.findBoard(boardSearch, pageable));
     }
     
     @PatchMapping(value = {"/{seqBoard}"})
-    public ResponseEntity<BoardVO> boardModify(
+    public ResponseEntity<BoardDetails> boardModify(
             @PathVariable Long seqBoard,
             @RequestBody @Valid BoardModify boardModify
     ) {
-        
-        Long seqUser = null;
-//        if (oAuth2UserPrincipal != null) {
-//            seqUser = oAuth2UserPrincipal.getSeqUser();
-//        } else {
-//            seqUser = null;
-//        }
-        boardModify.setSeqUser(seqUser);
-        
         return ResponseEntity.ok(boardManager.modifyBoard(seqBoard, boardModify));
     }
 }

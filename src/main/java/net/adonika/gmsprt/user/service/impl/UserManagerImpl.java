@@ -17,9 +17,9 @@ import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.user.model.UserAdd;
-import net.adonika.gmsprt.user.model.UserForm;
+import net.adonika.gmsprt.user.model.UserSearch;
 import net.adonika.gmsprt.user.model.UserModify;
-import net.adonika.gmsprt.user.model.UserVO;
+import net.adonika.gmsprt.user.model.UserDetails;
 
 @Service("userManager")
 public class UserManagerImpl implements UserManager {
@@ -34,8 +34,8 @@ public class UserManagerImpl implements UserManager {
         this.messageSource = messageSource;
     }
 
-    private UserVO convertTo(UserInfo userInfo) {
-        UserVO instance = new UserVO();
+    private UserDetails convertTo(UserInfo userInfo) {
+        UserDetails instance = new UserDetails();
         
         BeanUtils.copyProperties(userInfo, instance);
         
@@ -44,7 +44,7 @@ public class UserManagerImpl implements UserManager {
     
     @Transactional
     @Override
-    public UserVO addUser(UserAdd userAdd) {
+    public UserDetails addUser(UserAdd userAdd) {
         logger.info("[addUser] start");
         UserInfo userInfo = new UserInfo();
         BeanUtils.copyProperties(userAdd, userInfo);
@@ -56,7 +56,7 @@ public class UserManagerImpl implements UserManager {
 
     @Transactional
     @Override
-    public UserVO modifyUser(Long seqUser, UserModify userModify) {
+    public UserDetails modifyUser(Long seqUser, UserModify userModify) {
         logger.info("[modifyUser] start: seqUser = {}", seqUser);
         UserInfo userInfo = userDao.findById(seqUser).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
@@ -78,7 +78,7 @@ public class UserManagerImpl implements UserManager {
 
     @Transactional
     @Override
-    public UserVO findUser(Long seqUser) {
+    public UserDetails findUser(Long seqUser) {
         logger.info("[findUser] start: seqUser = {}", seqUser);
         UserInfo savedUserInfo= userDao.findById(seqUser).orElseThrow(()->{
             ErrorResp errorResp = ErrorResp.getNotFound();
@@ -90,13 +90,13 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public List<UserVO> findUser(UserForm userForm) {
+    public List<UserDetails> findUser(UserSearch userSearch) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Page<UserVO> findUser(UserForm userForm, Pageable pageable) {
+    public Page<UserDetails> findUser(UserSearch userSearch, Pageable pageable) {
         // TODO Auto-generated method stub
         return null;
     }

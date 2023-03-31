@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import net.adonika.gmsprt.domain.AuthTokenId;
-import net.adonika.gmsprt.user.model.UserProfileVO;
+import net.adonika.gmsprt.user.model.UserProfileDetails;
 
 public class AuthTokenAuthentication implements Authentication {
 
@@ -16,7 +16,7 @@ public class AuthTokenAuthentication implements Authentication {
     private static final long serialVersionUID = 5471207839429476288L;
     
     private final AuthTokenId details;
-    private UserProfileVO principal;
+    private UserProfileDetails principal;
     
     public AuthTokenAuthentication(String registrationId, String accessToken) {
         details = new AuthTokenId(registrationId, accessToken);
@@ -65,15 +65,15 @@ public class AuthTokenAuthentication implements Authentication {
      * 사용자 상세 정보
      */
     @Override
-    public UserProfileVO getPrincipal() {
+    public UserProfileDetails getPrincipal() {
         return principal;
     }
     
-    public void setPrincipal(UserProfileVO userProfileVO) throws IllegalArgumentException {
+    public void setPrincipal(UserProfileDetails userProfileDetails) throws IllegalArgumentException {
         if (principal != null) {
             throw new IllegalArgumentException("principal already exists");
         } else {
-            principal = userProfileVO;
+            principal = userProfileDetails;
         }
     }
 

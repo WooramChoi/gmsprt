@@ -1,6 +1,6 @@
 package net.adonika.gmsprt.board;
 
-import net.adonika.gmsprt.board.model.BoardForm;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.comm.CommSpecificationBuilder;
 import net.adonika.gmsprt.domain.BoardInfo;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,32 +8,32 @@ import org.springframework.util.StringUtils;
 
 public class BoardSpecificationBuilder extends CommSpecificationBuilder {
 
-    private final BoardForm boardForm;
+    private final BoardSearch boardSearch;
 
-    public BoardSpecificationBuilder(BoardForm boardForm) {
-        this.boardForm = boardForm;
+    public BoardSpecificationBuilder(BoardSearch boardSearch) {
+        this.boardSearch = boardSearch;
     }
 
     public Specification<BoardInfo> build() {
-        Specification<BoardInfo> spec = super.build(BoardInfo.class, boardForm);
+        Specification<BoardInfo> spec = super.build(BoardInfo.class, boardSearch);
         BoardSpecification boardSpecification = new BoardSpecification();
 
-        if (StringUtils.hasText(boardForm.getName())) {
+        if (StringUtils.hasText(boardSearch.getName())) {
             spec = super.addSpecification(Operation.AND,
                     spec,
-                    boardSpecification.likeName(boardForm.getName()));
+                    boardSpecification.likeName(boardSearch.getName()));
         }
 
-        if (StringUtils.hasText(boardForm.getToc())) {
+        if (StringUtils.hasText(boardSearch.getToc())) {
             spec = super.addSpecification(Operation.AND,
                     spec,
-                    boardSpecification.likeTitleOrContent(boardForm.getToc()));
+                    boardSpecification.likeTitleOrContent(boardSearch.getToc()));
         }
         
-        if (boardForm.getUse() != null) {
+        if (boardSearch.getUse() != null) {
             spec = super.addSpecification(Operation.AND,
                     spec,
-                    boardSpecification.isUse(boardForm.getUse()));
+                    boardSpecification.isUse(boardSearch.getUse()));
         }
 
         return spec;
