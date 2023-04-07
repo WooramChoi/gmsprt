@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardSearch;
-import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardDetails;
+import net.adonika.gmsprt.board.model.BoardModify;
+import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.util.SecurityUtil;
 
 @RestController
 @RequestMapping(value = {"/boards"})
@@ -38,6 +39,7 @@ public class BoardRestController {
     public ResponseEntity<BoardDetails> boardAdd(
             @RequestBody @Valid BoardAdd boardAdd
     ) {
+        boardAdd.setSeqUser(SecurityUtil.getCurrentSeqUser());
         return ResponseEntity.ok(boardManager.addBoard(boardAdd));
     }
 
@@ -58,6 +60,7 @@ public class BoardRestController {
             @PathVariable Long seqBoard,
             @RequestBody @Valid BoardModify boardModify
     ) {
+        boardModify.setSeqUser(SecurityUtil.getCurrentSeqUser());
         return ResponseEntity.ok(boardManager.modifyBoard(seqBoard, boardModify));
     }
 }
