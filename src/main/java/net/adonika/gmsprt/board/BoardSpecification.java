@@ -22,7 +22,7 @@ public class BoardSpecification extends CommSpecification {
     Specification<BoardInfo> likeTitleOrContent(String toc) {
 
         Specification<BoardInfo> specLikeTitle = super.like(c, "title", toc);
-        Specification<BoardInfo> specLikeContent = super.like(c, "content", toc);
+        Specification<BoardInfo> specLikeContent = super.like(c, "plainText", toc);
 
         return specLikeTitle.or(specLikeContent);
     }

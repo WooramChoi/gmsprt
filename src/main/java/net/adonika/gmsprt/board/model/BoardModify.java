@@ -1,5 +1,7 @@
 package net.adonika.gmsprt.board.model;
 
+import javax.validation.constraints.Size;
+
 import net.adonika.gmsprt.comm.model.CommModify;
 import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
 
@@ -11,6 +13,10 @@ public class BoardModify extends CommModify {
 
     @NullOrNotBlank
     private String content;
+    
+    @NullOrNotBlank
+    @Size(max = 4000)
+    private String plainText;
 
     @NullOrNotBlank
     private Boolean use;
@@ -46,6 +52,15 @@ public class BoardModify extends CommModify {
     public void setContent(String content) {
         super.setChanges("content");
         this.content = content;
+    }
+
+    public String getPlainText() {
+        return plainText;
+    }
+
+    public void setPlainText(String plainText) {
+        super.setChanges("plainText");
+        this.plainText = plainText;
     }
 
     public Boolean getUse() {

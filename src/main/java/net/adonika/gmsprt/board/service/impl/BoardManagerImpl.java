@@ -20,9 +20,10 @@ import org.springframework.util.StringUtils;
 import net.adonika.gmsprt.board.BoardSpecificationBuilder;
 import net.adonika.gmsprt.board.dao.BoardDao;
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardSearch;
-import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardDetails;
+import net.adonika.gmsprt.board.model.BoardModify;
+import net.adonika.gmsprt.board.model.BoardSearch;
+import net.adonika.gmsprt.board.model.BoardSummary;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.domain.BoardInfo;
 import net.adonika.gmsprt.domain.UserInfo;
@@ -224,10 +225,19 @@ public class BoardManagerImpl implements BoardManager {
 
     @Transactional
     @Override
-    public Page<BoardDetails> findBoard(BoardSearch boardSearch, Pageable pageable) {
+    public Page<BoardSummary> findBoard(BoardSearch boardSearch, Pageable pageable) {
         logger.info("[findBoard] start: boardSearch = {} / pageable = {}", ObjectUtil.toJson(boardSearch), ObjectUtil.toJson(pageable));
         Page<BoardInfo> savedBoardInfos = boardDao.findAll(new BoardSpecificationBuilder(boardSearch).build(), pageable);
         logger.info("[findBoard] done: savedBoardInfos[{}]", savedBoardInfos.getSize());
-        return savedBoardInfos.map(boardInfo->convertTo(boardInfo, BoardDetails.class));
+        Page<BoardSummary> boardSummaries = savedBoardInfos.map(boardInfo->{
+                BoardSummary converted = convertTo(boardInfo, BoardSummary.class);
+                String contentSummary = boardInfo.getPlainText();
+                if (contentSummary != null && contentSummary.length() > BoardSummary.LENGTH_SUMMARY) {
+                    contentSummary = contentSummary.substring(0, BoardSummary.LENGTH_SUMMARY);
+                }
+                converted.setContentSummary(contentSummary);
+                return converted;
+            });
+        return boardSummaries;
     }
 }

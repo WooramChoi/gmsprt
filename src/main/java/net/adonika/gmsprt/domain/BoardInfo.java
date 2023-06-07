@@ -12,9 +12,12 @@ public class BoardInfo extends CommInfo {
 
     @Column(name = "TITLE", length = 255)
     private String title;
-
-    @Column(name = "CONTENT", length = 5000)
+    
+    @Lob
     private String content;
+    
+    @Column(name = "PLAIN_TEXT", length = 4000)
+    private String plainText;
     
     @Column(name = "USE", columnDefinition = "boolean default true")
     private Boolean use = true;
@@ -51,6 +54,14 @@ public class BoardInfo extends CommInfo {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getPlainText() {
+        return plainText;
+    }
+
+    public void setPlainText(String plainText) {
+        this.plainText = plainText;
     }
 
     public Boolean getUse() {

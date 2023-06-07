@@ -20,6 +20,7 @@ import net.adonika.gmsprt.board.model.BoardAdd;
 import net.adonika.gmsprt.board.model.BoardDetails;
 import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardSearch;
+import net.adonika.gmsprt.board.model.BoardSummary;
 import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.util.SecurityUtil;
 
@@ -49,9 +50,8 @@ public class BoardRestController {
     }
     
     // NOTE Controller 는 무조건 Pageable 로 하자
-    // NOTE 게시글 내용을 리스트에 담는건 비효율적인것 같다. 응답이 너무 늦어질거 같으면 BoardList VO 객체를 만들도록 하자
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<Page<BoardDetails>> boardList(BoardSearch boardSearch, @PageableDefault() Pageable pageable) {
+    public ResponseEntity<Page<BoardSummary>> boardList(BoardSearch boardSearch, @PageableDefault() Pageable pageable) {
         return ResponseEntity.ok(boardManager.findBoard(boardSearch, pageable));
     }
     

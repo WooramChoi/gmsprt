@@ -6,9 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardSearch;
-import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardDetails;
+import net.adonika.gmsprt.board.model.BoardModify;
+import net.adonika.gmsprt.board.model.BoardSearch;
+import net.adonika.gmsprt.board.model.BoardSummary;
 
 public interface BoardManager {
     
@@ -22,7 +23,7 @@ public interface BoardManager {
     
     List<BoardDetails> findBoard(BoardSearch boardSearch);
     
-    Page<BoardDetails> findBoard(BoardSearch boardSearch, Pageable pageable);
+    Page<BoardSummary> findBoard(BoardSearch boardSearch, Pageable pageable);
 
     void removeBoard(BoardSearch boardSearch);
     

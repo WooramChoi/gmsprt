@@ -3,6 +3,7 @@ package net.adonika.gmsprt.board.model;
 import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 public class BoardAdd {
     
@@ -11,6 +12,10 @@ public class BoardAdd {
 
     @NotBlank
     private String content;
+    
+    @NotBlank
+    @Size(max = 4000)
+    private String plainText;
 
     private Long seqUser;
 
@@ -34,6 +39,14 @@ public class BoardAdd {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getPlainText() {
+        return plainText;
+    }
+
+    public void setPlainText(String plainText) {
+        this.plainText = plainText;
     }
 
     public Long getSeqUser() {

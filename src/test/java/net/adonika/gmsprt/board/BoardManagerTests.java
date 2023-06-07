@@ -1,14 +1,11 @@
 package net.adonika.gmsprt.board;
 
-import net.adonika.gmsprt.board.model.BoardAdd;
-import net.adonika.gmsprt.board.model.BoardSearch;
-import net.adonika.gmsprt.board.model.BoardModify;
-import net.adonika.gmsprt.board.model.BoardDetails;
-import net.adonika.gmsprt.board.service.BoardManager;
-import net.adonika.gmsprt.user.service.UserManager;
-import net.adonika.gmsprt.user.model.UserAdd;
-import net.adonika.gmsprt.user.model.UserDetails;
-import net.adonika.gmsprt.util.ObjectUtil;
+import java.util.List;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -19,10 +16,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.util.List;
-import java.util.Set;
+import net.adonika.gmsprt.board.model.BoardAdd;
+import net.adonika.gmsprt.board.model.BoardDetails;
+import net.adonika.gmsprt.board.model.BoardModify;
+import net.adonika.gmsprt.board.model.BoardSearch;
+import net.adonika.gmsprt.board.model.BoardSummary;
+import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.user.model.UserAdd;
+import net.adonika.gmsprt.user.model.UserDetails;
+import net.adonika.gmsprt.user.service.UserManager;
+import net.adonika.gmsprt.util.ObjectUtil;
 
 @SpringBootTest
 public class BoardManagerTests {
@@ -50,6 +53,7 @@ public class BoardManagerTests {
         BoardAdd boardAdd = new BoardAdd();
         boardAdd.setTitle(title);
         boardAdd.setContent(content);
+        boardAdd.setPlainText(content);
         boardAdd.setSeqUser(seqUser);
         boardAdd.setName(name);
         boardAdd.setPwd(pwd);
@@ -58,6 +62,11 @@ public class BoardManagerTests {
 
     @Test
     void CRUD() {
+        
+        /*
+         * 00. Remove data-h2.sql 
+         */
+        boardManager.removeBoard(new BoardSearch());
         
         /*
          * 00. Null Check
@@ -103,7 +112,7 @@ public class BoardManagerTests {
         Assertions.assertEquals(12, list.size());
         
         Pageable pageable = PageRequest.of(0, 5);
-        Page<BoardDetails> pagedList = boardManager.findBoard(boardSearch, pageable);
+        Page<BoardSummary> pagedList = boardManager.findBoard(boardSearch, pageable);
         Assertions.assertEquals(5, pagedList.getSize());
         
         /*
