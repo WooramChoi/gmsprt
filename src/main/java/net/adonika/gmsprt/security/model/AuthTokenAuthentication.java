@@ -39,6 +39,11 @@ public class AuthTokenAuthentication implements Authentication {
         return name;
     }
 
+    /*
+     * ROLE_
+     * ROLE_ADMIN / ROLE_MANAGER / ROLE_EMPLOYEE / ROLE_USER 로 구상중이지만,
+     * 당장에 USER 만 사용하기에 구현하지 않음
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // TODO Auto-generated method stub

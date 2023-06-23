@@ -1,5 +1,9 @@
 package net.adonika.gmsprt.board;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -22,6 +26,8 @@ import net.adonika.gmsprt.board.model.BoardModify;
 import net.adonika.gmsprt.board.model.BoardSearch;
 import net.adonika.gmsprt.board.model.BoardSummary;
 import net.adonika.gmsprt.board.service.BoardManager;
+import net.adonika.gmsprt.file.model.FileDetails;
+import net.adonika.gmsprt.file.service.FileManager;
 import net.adonika.gmsprt.util.SecurityUtil;
 
 @RestController
@@ -31,17 +37,22 @@ public class BoardRestController {
     private final Logger logger = LoggerFactory.getLogger(BoardRestController.class);
 
     private final BoardManager boardManager;
+    private final FileManager fileManager;
 
-    public BoardRestController(BoardManager boardManager) {
+    public BoardRestController(BoardManager boardManager, FileManager fileManager) {
         this.boardManager = boardManager;
+        this.fileManager = fileManager;
     }
 
     @PostMapping(value = {""})
     public ResponseEntity<BoardDetails> boardAdd(
             @RequestBody @Valid BoardAdd boardAdd
-    ) {
+    ) throws URISyntaxException {
         boardAdd.setSeqUser(SecurityUtil.getCurrentSeqUser());
-        return ResponseEntity.ok(boardManager.addBoard(boardAdd));
+        BoardDetails boardDetails = boardManager.addBoard(boardAdd);
+        // NOTE 201 created 에선 대체적으로 body 가 없다고 한다.
+        // 요청 body 를 기반으로 리소스가 생성됐기때문에 어차피 동일할 body 를 반환할 필요가 없다(단, 생성된 내용을 조회할 수 있는 URL은 반환해야한다).
+        return ResponseEntity.created(URI.create("/boards/" + boardDetails.getSeqBoard())).body(boardDetails);
     }
 
     @GetMapping(value = {"/{seqBoard}"})
@@ -62,5 +73,10 @@ public class BoardRestController {
     ) {
         boardModify.setSeqUser(SecurityUtil.getCurrentSeqUser());
         return ResponseEntity.ok(boardManager.modifyBoard(seqBoard, boardModify));
+    }
+    
+    @GetMapping(value = {"/{seqBoard}/files"})
+    public ResponseEntity<List<FileDetails>> boardFileList(@PathVariable Long seqBoard) {
+        return ResponseEntity.ok(fileManager.findFile("BOARD_INFO", seqBoard));
     }
 }

@@ -28,6 +28,7 @@ import net.adonika.gmsprt.board.service.BoardManager;
 import net.adonika.gmsprt.domain.BoardInfo;
 import net.adonika.gmsprt.domain.UserInfo;
 import net.adonika.gmsprt.exception.ErrorResp;
+import net.adonika.gmsprt.file.model.FileModify;
 import net.adonika.gmsprt.user.dao.UserDao;
 import net.adonika.gmsprt.util.ObjectUtil;
 
@@ -112,6 +113,16 @@ public class BoardManagerImpl implements BoardManager {
         
         BoardInfo savedBoardInfo = boardDao.save(boardInfo);
         logger.info("[addBoard] done: seqBoard = {}", savedBoardInfo.getSeqBoard());
+        
+        // TODO fileManager.modifyFile -> 올라온 첨부파일들을 일괄 업데이트
+        if (boardAdd.getSeqFile() != null) {
+            for(Long seqFile: boardAdd.getSeqFile()) {
+                FileModify fileModify = new FileModify();
+                fileModify.setRefTable("BOARD_INFO");
+                fileModify.setRefSeq(savedBoardInfo.getSeqBoard());
+            }
+        }
+        
         return convertTo(savedBoardInfo, BoardDetails.class);
     }
 

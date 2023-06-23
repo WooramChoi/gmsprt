@@ -1,9 +1,11 @@
 package net.adonika.gmsprt.board.model;
 
-import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
+import net.adonika.gmsprt.validation.annotation.NullOrNotBlank;
 
 public class BoardAdd {
     
@@ -24,6 +26,8 @@ public class BoardAdd {
 
     @NullOrNotBlank
     private String pwd;
+    
+    private List<Long> seqFile;
 
     public String getTitle() {
         return title;
@@ -71,5 +75,13 @@ public class BoardAdd {
 
     public void setPwd(String pwd) {
         this.pwd = pwd;
+    }
+
+    public List<Long> getSeqFile() {
+        return seqFile;
+    }
+
+    public void setSeqFile(List<Long> seqFile) {
+        this.seqFile = seqFile;
     }
 }

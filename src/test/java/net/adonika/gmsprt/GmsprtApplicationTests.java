@@ -1,5 +1,8 @@
 package net.adonika.gmsprt;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 
+import net.adonika.gmsprt.config.AppProperties;
+
 @SpringBootTest
 class GmsprtApplicationTests {
 
@@ -17,6 +22,9 @@ class GmsprtApplicationTests {
 
     @Autowired
     private MessageSource messageSource;
+    
+    @Autowired
+    private AppProperties appProperties;
 
     @Test
     void checkMessageSource() {
@@ -28,6 +36,20 @@ class GmsprtApplicationTests {
         String message_ko_2 = messageSource.getMessage("validation.is_null", new String[]{"boardInfo.seqBoard"}, Locale.getDefault());
         logger.info(message_ko_2);
         Assertions.assertEquals(message_ko_2, "boardInfo.seqBoard은(는) 비어있어야 합니다.");
+    }
+    
+    @Test
+    void checkPropertiesAndFile() {
+        String pathFile = appProperties.getPathFile();
+        logger.info("pathFile: {}", pathFile);
+        Assertions.assertNotNull(pathFile);
+        
+        logger.info("separator: {}", File.separator);
+        Path path = Paths.get(pathFile, "202306", "14");
+        logger.info("replaced paht: {}", path.toString());
+        
+        File file = new File(pathFile);
+        Assertions.assertTrue(file.isDirectory());
     }
 
 }

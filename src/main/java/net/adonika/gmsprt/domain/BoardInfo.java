@@ -10,16 +10,16 @@ public class BoardInfo extends CommInfo {
     @Column(name = "SEQ_BOARD", length = 10)
     private Long seqBoard;
 
-    @Column(name = "TITLE", length = 255)
+    @Column(length = 255)
     private String title;
     
     @Lob
     private String content;
     
-    @Column(name = "PLAIN_TEXT", length = 4000)
+    @Column(length = 4000)
     private String plainText;
     
-    @Column(name = "USE", columnDefinition = "boolean default true")
+    @Column(columnDefinition = "boolean default true")
     private Boolean use = true;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserInfo.class)
