@@ -3,7 +3,7 @@ package net.adonika.gmsprt.file.model;
 public class FileResource {
     private String name;
     private Long size;
-    private String path;
+    private byte[] bytes;
     private String alias;
     private String ext;
     
@@ -28,11 +28,11 @@ public class FileResource {
     public void setSize(Long size) {
         this.size = size;
     }
-    public String getPath() {
-        return path;
+    public byte[] getBytes() {
+        return bytes;
     }
-    public void setPath(String path) {
-        this.path = path;
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
     }
     public String getAlias() {
         return alias;

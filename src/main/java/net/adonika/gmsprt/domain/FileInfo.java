@@ -1,12 +1,15 @@
 package net.adonika.gmsprt.domain;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
+
+import net.adonika.gmsprt.util.BooleanYnConverter;
 
 @Entity
 @Table(
@@ -30,7 +33,8 @@ public class FileInfo extends CommAuthInfo {
     @Column(length = 12, updatable = false)
     private Long size;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(name="yn_use", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean use = true;
     
     // SELECT * FROM ${table} WHERE ${table.key} = ${ref}

@@ -2,6 +2,8 @@ package net.adonika.gmsprt.domain;
 
 import javax.persistence.*;
 
+import net.adonika.gmsprt.util.BooleanYnConverter;
+
 @Entity
 public class BoardInfo extends CommInfo {
 
@@ -19,7 +21,8 @@ public class BoardInfo extends CommInfo {
     @Column(length = 4000)
     private String plainText;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(name="yn_use", columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean use = true;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = UserInfo.class)

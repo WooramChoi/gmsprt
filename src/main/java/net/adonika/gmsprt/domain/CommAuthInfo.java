@@ -1,7 +1,10 @@
 package net.adonika.gmsprt.domain;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
+
+import net.adonika.gmsprt.util.BooleanYnConverter;
 
 @MappedSuperclass
 public class CommAuthInfo extends CommInfo {
@@ -9,31 +12,40 @@ public class CommAuthInfo extends CommInfo {
     @Column(length = 10)
     private Long seqGroup;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean userReadable = true;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean userWritable = true;
     
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean userExecutable = false;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean groupReadable = true;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean groupWritable = true;
     
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean groupExecutable = false;
     
-    @Column(columnDefinition = "boolean default true")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'Y'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean otherReadable = true;
     
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean otherWritable = false;
     
-    @Column(columnDefinition = "boolean default false")
+    @Column(columnDefinition = "CHAR(1) DEFAULT 'N'")
+    @Convert(converter = BooleanYnConverter.class)
     private Boolean otherExecutable = false;
 
     public Long getSeqGroup() {

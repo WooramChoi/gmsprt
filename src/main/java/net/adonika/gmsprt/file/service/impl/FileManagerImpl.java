@@ -1,10 +1,9 @@
 package net.adonika.gmsprt.file.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +30,7 @@ import net.adonika.gmsprt.file.model.FileModify;
 import net.adonika.gmsprt.file.model.FileResource;
 import net.adonika.gmsprt.file.model.FileSearch;
 import net.adonika.gmsprt.file.service.FileManager;
+import net.adonika.gmsprt.file.service.StorageManager;
 import net.adonika.gmsprt.util.DateUtil;
 import net.adonika.gmsprt.util.RandomUtil;
 import net.adonika.gmsprt.util.RandomUtil.Mode;
@@ -42,12 +42,14 @@ public class FileManagerImpl implements FileManager {
     
     private final FileDao fileDao;
     private final CommAuthManager commAuthManager;
+    private final StorageManager storageManager;
     private final AppProperties appProperties;
     private final MessageSource messageSource;
     
-    public FileManagerImpl(FileDao fileDao, CommAuthManager commAuthManager, AppProperties appProperties, MessageSource messageSource) {
+    public FileManagerImpl(FileDao fileDao, CommAuthManager commAuthManager, StorageManager storageManager, AppProperties appProperties, MessageSource messageSource) {
         this.fileDao = fileDao;
         this.commAuthManager = commAuthManager;
+        this.storageManager = storageManager;
         this.appProperties = appProperties;
         this.messageSource = messageSource;
     }
@@ -85,14 +87,7 @@ public class FileManagerImpl implements FileManager {
         
         // TODO 강제로 파일을 날짜별로 분류되게 하였다. 추후 문제될거 같으면 설정으로 분리하자
         Date now = new Date();
-        Path path = Paths.get(pathFile, DateUtil.dateToString(now, "yyyyMM")).toAbsolutePath().normalize();
-        try {
-            Files.createDirectories(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw ErrorResp.getInternalServerError();
-        }
-        fileInfo.setPath(path.toString());
+        fileInfo.setPath(pathFile + DateUtil.dateToString(now, "yyyyMM") + File.separator);
         logger.info("[addFile] - path: {}", fileInfo.getPath());
         
         int cntSafe = 10;   // while 문 안전 카운터
@@ -124,12 +119,15 @@ public class FileManagerImpl implements FileManager {
         
         logger.info("[addFile] done(save): seqFile = {}", savedFileInfo.getSeqFile());
         try {
-            Files.copy(file.getInputStream(), path.resolve(fileDetails.getFilename()));
+            File temp = new File(orgName);
+            temp.deleteOnExit();
+            file.transferTo(temp);
+            storageManager.write(savedFileInfo.getPath(), fileDetails.getFilename(), temp);
         } catch (IOException e) {
             e.printStackTrace();
             throw ErrorResp.getInternalServerError();
         }
-        logger.info("[addFile] done(write): {}", path.resolve(fileDetails.getFilename()).toString());
+        logger.info("[addFile] done(write): {}{}{}", savedFileInfo.getPath(), File.separator, fileDetails.getFilename());
         
         return fileDetails;
     }
@@ -196,7 +194,16 @@ public class FileManagerImpl implements FileManager {
         }
         
         logger.info("[findFile] done: seqFile = {} / alias = {}", savedFileInfo.getSeqFile(), savedFileInfo.getAlias());
-        return convertTo(savedFileInfo, FileResource.class);
+        FileResource fileResource = convertTo(savedFileInfo, FileResource.class);
+        try {
+            File temp = storageManager.read(savedFileInfo.getPath(), fileResource.getFilename());
+            fileResource.setBytes(Files.readAllBytes(temp.toPath()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            ErrorResp errorResp = ErrorResp.getInternalServerError();
+            throw errorResp;
+        }
+        return fileResource;
     }
 
 }

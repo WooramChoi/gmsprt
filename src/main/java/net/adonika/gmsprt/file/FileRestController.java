@@ -1,10 +1,6 @@
 package net.adonika.gmsprt.file;
 
-import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.validation.Valid;
 
@@ -64,13 +60,12 @@ public class FileRestController {
      * 우선은 파일명과 확장자가 드러나는 현재의 구조를 유지하고 싶어서 이렇게 구성
      */
     @GetMapping(value = {"/download/{alias}.{ext}"})
-    public ResponseEntity<Resource> fileDownload(@PathVariable String alias, @PathVariable String ext) throws IOException {
+    public ResponseEntity<Resource> fileDownload(@PathVariable String alias, @PathVariable String ext) {
         
         Long seqUser = SecurityUtil.getCurrentSeqUser();
         FileResource fileResource = fileManager.findFile(alias, seqUser, null);
         
-        Path path = Paths.get(fileResource.getPath(), fileResource.getFilename());
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+        ByteArrayResource resource = new ByteArrayResource(fileResource.getBytes());
         MediaType contentType = MediaTypeFactory.getMediaType(fileResource.getFilename()).orElse(MediaType.APPLICATION_OCTET_STREAM);
         
         return ResponseEntity.ok()
