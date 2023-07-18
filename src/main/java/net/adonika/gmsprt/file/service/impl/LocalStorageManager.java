@@ -6,23 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import net.adonika.gmsprt.config.AppProperties;
 import net.adonika.gmsprt.file.service.StorageManager;
 
+@Profile("storage-linux|storage-windows")
 @Service("storageManager")
-@Profile("!aws")
 public class LocalStorageManager implements StorageManager {
     
-    private final AppProperties appProperties;
-    private final MessageSource messageSource;
-    
-    public LocalStorageManager(AppProperties appProperties, MessageSource messageSource) {
-        this.appProperties = appProperties;
-        this.messageSource = messageSource;
+    public LocalStorageManager() {
     }
 
     @Override
@@ -34,7 +27,14 @@ public class LocalStorageManager implements StorageManager {
 
     @Override
     public File read(String path, String filename) throws IOException {
-        return new File(path + filename);
+        Path filePath = Paths.get(path).toAbsolutePath().normalize();
+        return filePath.resolve(filename).toFile();
+    }
+
+    @Override
+    public void delete(String path, String filename) throws IOException {
+        Path filePath = Paths.get(path).toAbsolutePath().normalize();
+        filePath.resolve(filename).toFile().delete();
     }
 
 }

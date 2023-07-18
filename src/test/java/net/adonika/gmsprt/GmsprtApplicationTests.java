@@ -1,8 +1,5 @@
 package net.adonika.gmsprt;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.MessageSource;
 
-import net.adonika.gmsprt.config.AppProperties;
+import net.adonika.gmsprt.props.StorageProperties;
 
 @SpringBootTest
 class GmsprtApplicationTests {
@@ -24,7 +21,7 @@ class GmsprtApplicationTests {
     private MessageSource messageSource;
     
     @Autowired
-    private AppProperties appProperties;
+    private StorageProperties storageProperties;
 
     @Test
     void checkMessageSource() {
@@ -39,17 +36,11 @@ class GmsprtApplicationTests {
     }
     
     @Test
-    void checkPropertiesAndFile() {
-        String pathFile = appProperties.getPathFile();
-        logger.info("pathFile: {}", pathFile);
-        Assertions.assertNotNull(pathFile);
+    void isValidStorageProperties() {
         
-        logger.info("separator: {}", File.separator);
-        Path path = Paths.get(pathFile, "202306", "14");
-        logger.info("replaced paht: {}", path.toString());
-        
-        File file = new File(pathFile);
-        Assertions.assertTrue(file.isDirectory());
+        String path = storageProperties.getPath();
+        logger.info("path: {}", path);
+        Assertions.assertTrue(!path.isBlank());
     }
 
 }

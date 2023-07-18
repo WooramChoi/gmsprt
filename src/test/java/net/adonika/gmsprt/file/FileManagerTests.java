@@ -11,8 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.file.model.FileAdd;
 import net.adonika.gmsprt.file.model.FileDetails;
+import net.adonika.gmsprt.file.model.FileResource;
 import net.adonika.gmsprt.file.service.FileManager;
 
 @SpringBootTest
@@ -24,17 +26,26 @@ public class FileManagerTests {
     private FileManager fileManager;
     
     @Test
-    void writeFile() {
+    void writeReadDeleteFile() {
         
         FileAdd fileAdd = new FileAdd();
         fileAdd.setRefTable("BOARD_INFO");
         
         String writerData = "str1,str2,str3,str4";
-        MultipartFile multipartFile = new MockMultipartFile("files", "test.csv", "text/plain", writerData.getBytes(StandardCharsets.UTF_8));
+        byte[] content = writerData.getBytes(StandardCharsets.UTF_8);
+        MultipartFile multipartFile = new MockMultipartFile("files", "test.csv", "text/plain", content);
         
         FileDetails savedFile = fileManager.addFile(fileAdd, multipartFile);
         Assertions.assertNotNull(savedFile.getSeqFile());
         
+        Long seqFile = savedFile.getSeqFile();
+        String alias = savedFile.getAlias();
+        FileResource fileResource = fileManager.findFile(alias, null, null);
+        
+        Assertions.assertArrayEquals(content, fileResource.getBytes());
+        
+        fileManager.removeFile(seqFile);
+        Assertions.assertThrows(ErrorResp.getNotFound().getClass(), ()->{fileManager.findFile(seqFile);});
     }
 
 }

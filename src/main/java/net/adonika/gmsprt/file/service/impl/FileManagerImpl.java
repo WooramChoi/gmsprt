@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,7 +19,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import net.adonika.gmsprt.comm.service.CommAuthManager;
-import net.adonika.gmsprt.config.AppProperties;
 import net.adonika.gmsprt.domain.FileInfo;
 import net.adonika.gmsprt.exception.ErrorResp;
 import net.adonika.gmsprt.file.dao.FileDao;
@@ -31,7 +29,7 @@ import net.adonika.gmsprt.file.model.FileResource;
 import net.adonika.gmsprt.file.model.FileSearch;
 import net.adonika.gmsprt.file.service.FileManager;
 import net.adonika.gmsprt.file.service.StorageManager;
-import net.adonika.gmsprt.util.DateUtil;
+import net.adonika.gmsprt.props.StorageProperties;
 import net.adonika.gmsprt.util.RandomUtil;
 import net.adonika.gmsprt.util.RandomUtil.Mode;
 
@@ -43,14 +41,14 @@ public class FileManagerImpl implements FileManager {
     private final FileDao fileDao;
     private final CommAuthManager commAuthManager;
     private final StorageManager storageManager;
-    private final AppProperties appProperties;
+    private final StorageProperties storageProperties;
     private final MessageSource messageSource;
     
-    public FileManagerImpl(FileDao fileDao, CommAuthManager commAuthManager, StorageManager storageManager, AppProperties appProperties, MessageSource messageSource) {
+    public FileManagerImpl(FileDao fileDao, CommAuthManager commAuthManager, StorageManager storageManager, StorageProperties storageProperties, MessageSource messageSource) {
         this.fileDao = fileDao;
         this.commAuthManager = commAuthManager;
         this.storageManager = storageManager;
-        this.appProperties = appProperties;
+        this.storageProperties = storageProperties;
         this.messageSource = messageSource;
     }
     
@@ -78,16 +76,13 @@ public class FileManagerImpl implements FileManager {
         FileInfo fileInfo = new FileInfo();
         BeanUtils.copyProperties(fileAdd, fileInfo);
         
-        String pathFile = appProperties.getPathFile();
-        if (!StringUtils.hasText(pathFile)) {
+        String path = storageProperties.getPath();
+        if (!StringUtils.hasText(path)) {
             ErrorResp errorResp = ErrorResp.getInternalServerError();
-            errorResp.addError("app.path-file", pathFile, messageSource.getMessage("exception.setting.not_enough", null, Locale.getDefault()));
+            errorResp.addError("storage.path", path, messageSource.getMessage("exception.setting.not_enough", null, Locale.getDefault()));
             throw errorResp;
         }
-        
-        // TODO 강제로 파일을 날짜별로 분류되게 하였다. 추후 문제될거 같으면 설정으로 분리하자
-        Date now = new Date();
-        fileInfo.setPath(pathFile + DateUtil.dateToString(now, "yyyyMM") + File.separator);
+        fileInfo.setPath(path);
         logger.info("[addFile] - path: {}", fileInfo.getPath());
         
         int cntSafe = 10;   // while 문 안전 카운터
@@ -127,7 +122,7 @@ public class FileManagerImpl implements FileManager {
             e.printStackTrace();
             throw ErrorResp.getInternalServerError();
         }
-        logger.info("[addFile] done(write): {}{}{}", savedFileInfo.getPath(), File.separator, fileDetails.getFilename());
+        logger.info("[addFile] done(write): {}{}", savedFileInfo.getPath(), fileDetails.getFilename());
         
         return fileDetails;
     }
@@ -137,6 +132,31 @@ public class FileManagerImpl implements FileManager {
     public FileDetails modifyFile(Long seqFile, FileModify fileModify) {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    @Transactional
+    @Override
+    public void removeFile(Long seqFile) {
+        logger.info("[removeFile] start: seqFile = {}", seqFile);
+        FileInfo savedFileInfo = fileDao.findById(seqFile).orElseThrow(() -> {
+            ErrorResp errorResp = ErrorResp.getNotFound();
+            errorResp.addError("seqFile", seqFile, messageSource.getMessage("validation.file.not_found", null, Locale.getDefault()));
+            return errorResp;
+        });
+        String filename = savedFileInfo.getAlias();
+        if(StringUtils.hasText(savedFileInfo.getExt())) {
+            filename += "." + savedFileInfo.getExt();
+        }
+        logger.info("[removeFile] delete on storage: {}", filename);
+        try {
+            storageManager.delete(savedFileInfo.getPath(), filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw ErrorResp.getInternalServerError();
+        }
+        logger.info("[removeFile] delete on storage done");
+        fileDao.delete(savedFileInfo);
+        logger.info("[removeFile] done: seqFile = {}", seqFile);
     }
 
     @Transactional

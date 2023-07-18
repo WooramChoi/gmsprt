@@ -17,6 +17,8 @@ public interface FileManager {
     
     FileDetails modifyFile(Long seqFile, FileModify fileModify);
     
+    void removeFile(Long seqFile);
+    
     FileDetails findFile(Long seqFile);
     
     <T> T findFile(Long seqFile, Class<T> c);
