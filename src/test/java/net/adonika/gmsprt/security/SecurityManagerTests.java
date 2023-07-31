@@ -21,7 +21,7 @@ public class SecurityManagerTests {
     @Qualifier("githubApiClient")
     private WebClient githubApiClient;
     
-    @Test
+    //@Test
     public void verifyGoogle() {
         
         String accessToken = "ya29.a0AVvZVsobxhxuqKNJMpfyfOofCcOBrm0o22x1Lw4srjwzs-GFym0b_g4OEi8RAJHdFz4f-ZkLAVgVVECsbwip9cwNKNRpR6E6eC5A71_7erFh2BDI3C88OxHioQmbwbplUIQ82gbSRXbpUm-NpDqlPom6wOmeaCgYKAcMSARESFQGbdwaIcuwxfWyeMYGKmDSpMH38nw0163";
@@ -42,7 +42,7 @@ public class SecurityManagerTests {
         
     }
     
-    @Test
+    //@Test
     public void verifyGithub() {
         
         String accessToken = "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";

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,8 @@ public class S3StorageManager implements StorageManager {
         try {
             S3Object object = s3client.getObject(bucketName, path + filename);
             S3ObjectInputStream s3is = object.getObjectContent();
-            temp = new File(filename);
-            temp.deleteOnExit();
+            // temp = new File(filename);
+            temp = Paths.get(System.getProperty("user.home")).resolve(filename).toFile();
             FileOutputStream fos = new FileOutputStream(temp);
             byte[] read_buf = new byte[1024];
             int read_len = 0;
@@ -76,6 +77,10 @@ public class S3StorageManager implements StorageManager {
             System.err.println(e.getErrorMessage());
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
+        } finally {
+            if(temp!=null && temp.exists()) {
+                temp.delete();
+            }
         }
         return temp;
     }

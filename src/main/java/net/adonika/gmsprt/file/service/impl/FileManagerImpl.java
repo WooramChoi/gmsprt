@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -113,14 +114,18 @@ public class FileManagerImpl implements FileManager {
         FileDetails fileDetails = convertTo(savedFileInfo, FileDetails.class);
         
         logger.info("[addFile] done(save): seqFile = {}", savedFileInfo.getSeqFile());
+        // File temp = new File(orgName);
+        File temp = Paths.get(System.getProperty("user.home")).resolve(orgName).toFile();
         try {
-            File temp = new File(orgName);
-            temp.deleteOnExit();
             file.transferTo(temp);
             storageManager.write(savedFileInfo.getPath(), fileDetails.getFilename(), temp);
-        } catch (IOException e) {
+        } catch (IOException | IllegalStateException e) {
             e.printStackTrace();
             throw ErrorResp.getInternalServerError();
+        } finally {
+            if (temp != null && temp.exists()) {
+                temp.delete();
+            }
         }
         logger.info("[addFile] done(write): {}{}", savedFileInfo.getPath(), fileDetails.getFilename());
         
@@ -216,8 +221,8 @@ public class FileManagerImpl implements FileManager {
         logger.info("[findFile] done: seqFile = {} / alias = {}", savedFileInfo.getSeqFile(), savedFileInfo.getAlias());
         FileResource fileResource = convertTo(savedFileInfo, FileResource.class);
         try {
-            File temp = storageManager.read(savedFileInfo.getPath(), fileResource.getFilename());
-            fileResource.setBytes(Files.readAllBytes(temp.toPath()));
+            File file = storageManager.read(savedFileInfo.getPath(), fileResource.getFilename());
+            fileResource.setBytes(Files.readAllBytes(file.toPath()));
         } catch (IOException e) {
             e.printStackTrace();
             ErrorResp errorResp = ErrorResp.getInternalServerError();

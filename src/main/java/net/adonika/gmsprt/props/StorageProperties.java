@@ -17,6 +17,9 @@ public class StorageProperties {
     private final String path;
     
     public StorageProperties(String fileSeparator, String path) {
+        System.out.println("## call storage properties constructor ##");
+        System.out.println("## fileSeparator: " + fileSeparator);
+        System.out.println("## path: " + path);
         this.fileSeparator = fileSeparator;
         this.path = path;
     }

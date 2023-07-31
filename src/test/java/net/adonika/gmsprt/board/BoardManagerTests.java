@@ -27,7 +27,7 @@ import net.adonika.gmsprt.user.model.UserDetails;
 import net.adonika.gmsprt.user.service.UserManager;
 import net.adonika.gmsprt.util.ObjectUtil;
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.config.location=classpath:application.properties"})
 public class BoardManagerTests {
 
     private final Logger logger = LoggerFactory.getLogger(BoardManagerTests.class);
@@ -59,8 +59,9 @@ public class BoardManagerTests {
         boardAdd.setPwd(pwd);
         return boardAdd;
     }
-
-    @Test
+    
+    // TODO 기존 데이터를 건드리지 않는 테스트가 필요하다
+    //@Test
     void CRUD() {
         
         /*

@@ -11,7 +11,7 @@
     <groupId>net.adonika</groupId>
     <artifactId>gmsprt</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>gmsprt</name>
     <description>gmsprt</description>
     <properties>
@@ -48,6 +48,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.500</version>
+        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -75,17 +81,20 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
-        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-s3 -->
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.12.500</version>
-        </dependency>
-
     </dependencies>
 
     <build>
+        <!--
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <excludes>
+                    <exclude>**/*.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -93,5 +102,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

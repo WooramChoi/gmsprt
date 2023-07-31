@@ -17,7 +17,7 @@ import net.adonika.gmsprt.file.model.FileDetails;
 import net.adonika.gmsprt.file.model.FileResource;
 import net.adonika.gmsprt.file.service.FileManager;
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.config.location=classpath:application.properties"})
 public class FileManagerTests {
     
     private final Logger logger = LoggerFactory.getLogger(FileManagerTests.class);
