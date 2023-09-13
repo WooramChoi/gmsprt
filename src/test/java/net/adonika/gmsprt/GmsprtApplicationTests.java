@@ -40,7 +40,7 @@ class GmsprtApplicationTests {
         
         String path = storageProperties.getPath();
         logger.info("path: {}", path);
-        Assertions.assertTrue(!path.isBlank());
+        Assertions.assertTrue(path != null && !path.isEmpty());
     }
 
 }
