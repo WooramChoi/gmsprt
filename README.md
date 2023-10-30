@@ -25,3 +25,5 @@ Game supporter
     * insert{Name}() -> 생성
     * update{Name}() -> 수정
     * delete{Name}() -> 삭제
+
+Dooray 테스트
