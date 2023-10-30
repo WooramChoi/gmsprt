@@ -26,4 +26,4 @@ Game supporter
     * update{Name}() -> 수정
     * delete{Name}() -> 삭제
 
-Dooray 테스트 다섯번째
+Dooray 테스트 여섯번째
